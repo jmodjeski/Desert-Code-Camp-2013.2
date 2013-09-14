@@ -1,0 +1,36 @@
+extends layout
+
+block content
+  
+  polymer-element(name="dcca-adminuserlist")
+      template
+        table
+          thead
+            tr
+              th Username
+              th Email
+          tbody
+            template(repeat="{{ users }}")
+              tr
+                td= username
+                td= email
+      script.
+        Polymer('dcc-adminuserlist', {
+            applyAuthorStyles: true,
+          });
+
+  polymer-element(name="dcca-adminadduser")
+      template
+        
+      script.
+        Polymer('dcc-adminadduser', {
+            applyAuthorStyles: true
+          });
+
+  polymer-element(name="dcca-adminedituser")
+      template
+        
+      script.
+        Polymer('dcc-adminedituser', {
+            applyAuthorStyles: true
+          });

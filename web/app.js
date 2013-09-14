@@ -12,7 +12,7 @@ var express = require('express')
 
 var app = express();
 
-// all environments
+app.configure(function(){
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
@@ -22,11 +22,12 @@ app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
+});
 
 // development only
-if ('development' == app.get('env')) {
+app.configure('development', function(){
   app.use(express.errorHandler());
-}
+});
 
 // handle the api as a middleware
 app.use('/api/', api)
