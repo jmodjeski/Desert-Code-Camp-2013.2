@@ -1,0 +1,6 @@
+[submodule "web/public/polymer-ui-elements"]
+	path = web/public/polymer-ui-elements
+	url = https://github.com/Polymer/polymer-ui-elements.git
+[submodule "web/public/polymer-elements"]
+	path = web/public/polymer-elements
+	url = https://github.com/Polymer/polymer-elements.git
