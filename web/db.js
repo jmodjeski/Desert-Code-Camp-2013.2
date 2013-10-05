@@ -8,10 +8,8 @@ var slice = function(args){
 };
 
 // wrapping up the connection management along with function call
-var sync = function(method, query, options, cb){
-    var args = slice.call(arguments, 0);
-    var method = args.shift();
-
+var sync = function(method){
+  return function(query, options, cb) {
     connect(url, function(err, db){
       err ? cb(err) : db.collection(this.name, function(err, col){
         err ? cb(err) : col[method](query, options, function(err, result){
@@ -25,6 +23,7 @@ var sync = function(method, query, options, cb){
         });
       });
     });
+  };
 };
 
 // Generic Repository class
@@ -34,34 +33,14 @@ var Repository = function(options){
   this.name = options.name;
 }
 _.extend(Repository.prototype, {
-  find:function(query, options, cb){
-    var args = slice(arguments, 0);
-    args.unshift('find');
-    sync.apply(this, args);
-  },
-
-  create: function(items, options, cb){
-    var args = slice(arguments, 0);
-    args.unshift('insert');
-    sync.apply(this, args);
-  },
-
-  update: function(items, options, cb){
-    var args = slice(arguments, 0);
-    args.unshift('update');
-    sync.apply(this, args);
-  },
-
-  remove: function(items){
-    var args = slice(arguments, 0);
-    args.unshift('remove');
-    sync.apply(this, args);
-  }
+  find: sync('find'),
+  create: sync('insert'),
+  update: sync('update'),
+  remove: sync('remove')
 });
 
 // create the repositories
 exports = module.exports = _.extend(this, {
-  users: new Repository({name:'Users'}),
   trackers: new Repository({name:'Trackers'})
 });
 

@@ -1,0 +1,49 @@
+extends layout
+
+block head
+	link(rel="stylesheet", href="/bower_components/bootstrap/dist/css/bootstrap.min.css")
+ 
+
+block content
+
+	polymer-element(name="app-tracker-add")
+		template
+			link(rel="stylesheet", href="/bower_components/bootstrap/dist/css/bootstrap.min.css")
+			container
+				form(id="addTracker")
+					fieldset
+						.form-group.col-md-8
+							label Tracker name
+							input.form-control(name="name", value="{{trackerName}}")
+					button Add Tracker
+		script
+			Polymer('app-tracker-add',{
+				trackerName: "",
+				created: function(){
+					var self = this;
+					$(this.$.addTracker).submit(function(evt){
+						evt.preventDefault();
+
+						alert(self.trackerName);
+
+					});
+				},
+				trackerNameChanged: function(oldValue){
+					console.log(oldValue);
+				}
+
+			});
+
+
+
+	polymer-element(name="app-trackers")
+		template
+			app-tracker-add(id="addTracker")
+		script
+			Polymer("app-trackers",{
+				ready: function(){
+
+				}
+			});
+
+	app-trackers

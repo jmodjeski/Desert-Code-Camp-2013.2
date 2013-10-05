@@ -13,15 +13,24 @@ var express = require('express')
 var app = express();
 
 app.configure(function(){
-app.set('port', process.env.PORT || 3000);
-app.set('views', __dirname + '/views');
-app.set('view engine', 'jade');
-app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public')));
+	app.set('port', process.env.PORT || 3000);
+	app.set('views', __dirname + '/views');
+	app.set('view engine', 'jade');
+	app.use(express.favicon());
+	app.use(express.logger('dev'));
+	app.use(express.bodyParser());
+	app.use(express.methodOverride());
+
+	// initialize response model - must occur before app.router
+	app.use(function(req, res, next){
+		res.model = {
+			title: "DCC2013.2 Polymer Demo"
+		};
+		next();
+	});
+
+	app.use(app.router);
+	app.use(express.static(path.join(__dirname, 'public')));
 });
 
 // development only
@@ -34,6 +43,8 @@ app.use('/api/', api)
 
 // register pages
 app.get('/', routes.index);
+app.get('/trackers', routes.trackers)
+
 
 
 
