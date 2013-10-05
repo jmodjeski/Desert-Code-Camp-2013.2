@@ -1,0 +1,29 @@
+{
+	Title:,
+	Participants: [
+		{
+			Type:,
+			Rate:,
+			Count:
+		}
+	],	
+
+	Log: [{
+		StartTime:,
+		StopTime:,
+		TotalTime:,
+		Cost:,
+		Tags: [
+		],
+		Participants: [
+			{
+				Type:,
+				Rate:,
+				Count:,
+				TotalCost:,
+			}
+		]
+
+	}]
+
+}
