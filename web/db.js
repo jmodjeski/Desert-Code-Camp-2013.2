@@ -64,4 +64,3 @@ exports = module.exports = _.extend(this, {
   users: new Repository({name:'Users'}),
   trackers: new Repository({name:'Trackers'})
 });
-
