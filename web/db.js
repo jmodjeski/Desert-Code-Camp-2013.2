@@ -43,4 +43,3 @@ _.extend(Repository.prototype, {
 exports = module.exports = _.extend(this, {
   trackers: new Repository({name:'Trackers'})
 });
-
