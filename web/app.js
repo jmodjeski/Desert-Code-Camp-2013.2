@@ -43,7 +43,7 @@ app.use('/api/', api)
 
 // register pages
 app.get('/', routes.index);
-app.get('/trackers', routes.trackers);
+app.get('/meeting/:id', routes.meeting);
 
 
 

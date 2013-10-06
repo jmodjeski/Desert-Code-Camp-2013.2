@@ -6,4 +6,4 @@ exports.index = function(req, res){
   res.render('index', res.model);
 };
 
-exports.trackers = require("./tracker");
+exports.meeting = require("./meeting");

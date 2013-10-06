@@ -7,6 +7,7 @@ block content
 			Polymer("framework-resource", {
 				url: "",
 				create: function(data){
+					console.log(this.url);
 					var self = this;
 					self.data.push(data);
 					self.async(function(){
@@ -39,18 +40,19 @@ block content
 			Polymer("meetings-resource", {
 				url: '/api/meetings',
 				data: [
-					{title: "Meeting 1"},
-					{title: "Meeting 2"},
-					{title: "Meeting 3"},
-					{title: "Meeting 4"}
+					{id:1, title: "Meeting 1"},
+					{id:2, title: "Meeting 2"},
+					{id:3, title: "Meeting 3"},
+					{id:4, title: "Meeting 4"}
 				]
 			});
 
 	polymer-element(name="meetings-add")
 		template
-			form(id="addForm", on-submit="formSubmit")
-				input(type="text",value="{{title}}")
-				button Add Meeting
+			form.form-inline(role="form", id="addForm", on-submit="formSubmit")
+				.form-group
+					input.form-control(type="text",value="{{title}}")
+				button.btn.btn-default Add Meeting
 		script
 			Polymer("meetings-add", {
 				title: "",
@@ -65,14 +67,14 @@ block content
 
 	polymer-element(name="meetings-list")
 		template
-			table
+			table.table.table-striped
 				thead
 					th Title
 				tbody
 					template(repeat="{{meeting in meetings}}")
 						tr
 							td
-								a(href="#") {{meeting.title}}
+								a(href="/meeting/{{meeting.id}}") {{meeting.title}}
 					
 		script
 			Polymer("meetings-list", {
@@ -114,5 +116,6 @@ block content
 			});
 
 
-	meetings-app
+	.row
+		meetings-app.col-md-12
 
