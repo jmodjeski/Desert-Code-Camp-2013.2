@@ -6,6 +6,12 @@ block head
 
 block content
 
+	polymer-element(name="app-tracker-resource")
+		script
+			Polymer('app-tracker-resource', {
+
+			});
+
 	polymer-element(name="app-tracker-add")
 		template
 			link(rel="stylesheet", href="/bower_components/bootstrap/dist/css/bootstrap.min.css")
@@ -27,21 +33,16 @@ block content
 						alert(self.trackerName);
 
 					});
-				},
-				trackerNameChanged: function(oldValue){
-					console.log(oldValue);
 				}
-
 			});
-
-
 
 	polymer-element(name="app-trackers")
 		template
 			app-tracker-add(id="addTracker")
 		script
 			Polymer("app-trackers",{
-				ready: function(){
+				created: function(){
+
 
 				}
 			});

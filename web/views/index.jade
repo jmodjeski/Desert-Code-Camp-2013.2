@@ -1,3 +1,118 @@
 extends layout
 
-block content  
+block content
+
+	polymer-element(name="framework-resource")
+		script
+			Polymer("framework-resource", {
+				url: "",
+				create: function(data){
+					var self = this;
+					self.data.push(data);
+					self.async(function(){
+						self.fire('add-complete', {
+							data: data
+						});
+					});
+				},
+				update: function(id, data){
+
+				},
+				remove: function(id){
+
+				},
+				fetch: function(id){
+
+				},
+				query: function(query){
+					var self = this;
+					self.async(function(){
+						self.fire('query-complete', {
+							data: self.data
+						});
+					});
+				}
+			})
+
+	polymer-element(name="meetings-resource", extends="framework-resource")
+		script
+			Polymer("meetings-resource", {
+				url: '/api/meetings',
+				data: [
+					{title: "Meeting 1"},
+					{title: "Meeting 2"},
+					{title: "Meeting 3"},
+					{title: "Meeting 4"}
+				]
+			});
+
+	polymer-element(name="meetings-add")
+		template
+			form(id="addForm", on-submit="formSubmit")
+				input(type="text",value="{{title}}")
+				button Add Meeting
+		script
+			Polymer("meetings-add", {
+				title: "",
+				formSubmit: function(e, sender, detail){
+					var self = this;
+					e.preventDefault();
+					self.fire('add-meeting', {
+						title: self.title
+					});
+				}
+			});
+
+	polymer-element(name="meetings-list")
+		template
+			table
+				thead
+					th Title
+				tbody
+					template(repeat="{{meeting in meetings}}")
+						tr
+							td
+								a(href="#") {{meeting.title}}
+					
+		script
+			Polymer("meetings-list", {
+				meetings: [],
+				created: function(){
+					var self = this;
+
+					// defers firing of the event 
+					// until the page is ready
+					self.async(function(){
+						self.fire('get-meetings', {});
+					})
+				}
+			});
+
+	polymer-element(name="meetings-app")
+		template
+			meetings-add(id="add", on-add-meeting="addMeeting")
+			meetings-list(id="list", on-get-meetings="loadMeetings")
+			meetings-resource(id="meetings", on-query-complete="populateMeetings", on-add-complete="meetingAdded")
+		script
+			Polymer("meetings-app", {
+				loadMeetings: function(e, sender, detail){
+					var self = this;
+					self.$.meetings.query();
+				},
+				addMeeting: function(e, sender, detail){
+					var self = this;
+					self.$.meetings.create(sender);
+				},
+				populateMeetings: function(e, sender, detail){
+					var self = this;
+					self.$.list.meetings = sender.data;
+				},
+				meetingAdded: function(e, sender, detail){
+					var self = this;
+					self.$.add.title = "";
+				}
+			});
+
+
+	meetings-app
+
