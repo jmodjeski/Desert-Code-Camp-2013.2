@@ -10,12 +10,7 @@ block content
 		script.
 			Polymer("meetings-resource", {
 				url: '/api/meetings',
-				data: [
-					{_id:1, title: "Meeting 1"},
-					{_id:2, title: "Meeting 2"},
-					{_id:3, title: "Meeting 3"},
-					{_id:4, title: "Meeting 4"}
-				]
+				data: []
 			});
 
 	polymer-element(name="meetings-add")
@@ -24,7 +19,7 @@ block content
 				.form-group
 					input.form-control(type="text",value="{{title}}")
 				button.btn.btn-default Add Meeting
-		script
+		script.
 			Polymer("meetings-add", {
 				title: "",
 				formSubmit: function(e, sender, detail){
@@ -36,18 +31,56 @@ block content
 				}
 			});
 
+	polymer-element(name="framework-confirm-removal")
+		template
+			button.btn.btn-danger.pull-right(id="remove", type="button", on-click="check") Remove
+			.btn-group.pull-right(id="check")
+				button.btn.btn-danger(id="confirm", type="button", on-click="confirm") Confirm Removal
+				button.btn.btn-default(id="cancel", type="button", on-click="cancel") Cancel
+
+		script.
+			Polymer("framework-confirm-removal", {
+				publish: {
+					data: null
+				},
+				created: function(){
+					var self = this;
+					$(self.$.check).hide();
+				},
+				check: function(){
+					var self = this;
+					$(self.$.remove).hide();
+					$(self.$.check).show();
+				},
+				confirm: function(){
+					var self = this;
+					self.async(function(){
+						self.cancel();
+						self.fire("remove", self.data);
+					});
+				},
+				cancel: function(){
+					var self = this;
+					$(self.$.remove).show();
+					$(self.$.check).hide();
+				}
+			});
+
 	polymer-element(name="meetings-list")
 		template
 			table.table.table-striped
 				thead
 					th Title
+					th
 				tbody
 					template(repeat="{{meeting in meetings}}")
 						tr
 							td
-								a(href="/meeting/{{meeting._id}}") {{meeting.title}}
+								a(href="/meeting/{{meeting.id}}") {{meeting.title}}
+							td
+								framework-confirm-removal(on-remove="removeItem", data="{{meeting}}")
 					
-		script
+		script.
 			Polymer("meetings-list", {
 				meetings: [],
 				created: function(){
@@ -58,15 +91,21 @@ block content
 					self.async(function(){
 						self.fire('get-meetings', {});
 					})
+				},
+				removeItem: function(e, sender, detail){
+					var self = this;
+					self.async(function(){
+						self.fire('remove-meeting', sender);
+					});
 				}
 			});
 
 	polymer-element(name="meetings-app")
 		template
 			meetings-add(id="add", on-add-meeting="addMeeting")
-			meetings-list(id="list", on-get-meetings="loadMeetings")
+			meetings-list(id="list", on-get-meetings="loadMeetings", on-remove-meeting="removeMeeting")
 			meetings-resource(id="meetings", on-query-complete="populateMeetings", on-add-complete="meetingAdded")
-		script
+		script.
 			Polymer("meetings-app", {
 				loadMeetings: function(e, sender, detail){
 					var self = this;
@@ -83,6 +122,10 @@ block content
 				meetingAdded: function(e, sender, detail){
 					var self = this;
 					self.$.add.title = "";
+				},
+				removeMeeting: function(e, sender, detail){
+					var self = this;
+					self.$.meetings.remove(sender.id);
 				}
 			});
 

@@ -21,7 +21,19 @@
 
 				},
 				remove: function(id){
-
+					var self = this;
+					$.ajax({
+						url: self.url + "/" + id,
+						method: 'DELETE',
+						data: {}
+					}).done(function(){
+						var data = _.remove(self.data, {id:id});
+						self.async(function(){
+							self.fire('remove-complete', {
+								data: data
+							});
+						});
+					});
 				},
 				fetch: function(id){
 

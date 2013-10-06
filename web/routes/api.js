@@ -3,33 +3,36 @@ var _ = require('underscore'),
   db = require('../db');
 
   var get = function(repo, req, res, next){
-    repo.find({}, {}, function(err, result, next){
-      console.log(err, result);
+    var id = req.url.split(/\//, 3)[2];
+    var query = req.params || {};
+    if(id) {
+      query = {_id: id};
+    }
+    repo.find(query, {}, function(err, result, next){
       res.send(err ? 500 : 200, err || result);
       next();
     })
   };
 
   var put = function(repo, req, res, next){
-    repo.update({}, {}, function(err, result, next){
+    var id = req.url.split(/\//, 3)[2];
+    repo.update({id: id, data: req.body}, {}, function(err, result, next){
       res.send(err ? 500 : 201, err || result);
       next();
     })
   };
 
   var post = function(repo, req, res, next){
-    console.log(req.body);
     repo.create(req.body, {}, function(err, result, next){
-      console.log(err);
-      console.log(result);
       res.send(err ? 500 : 200, err || result);
       next();
     })
   };
 
   var del = function(repo, req, res, next){
-    repo.remove({}, {}, function(err, result, next){
-      res.send(err ? 500 : 200, err || result);
+    var id = req.url.split(/\//, 3)[2];
+    repo.remove(id, {}, function(err, result, next){
+      res.send(err ? 500 : 200);
       next();
     })
   };
