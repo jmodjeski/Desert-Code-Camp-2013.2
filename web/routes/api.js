@@ -3,41 +3,39 @@ var _ = require('underscore'),
   db = require('../db');
 
   var get = function(repo, req, res, next){
-    repo.find({}, {}, function(err, result){
-      res.send(err || result);
+    repo.find({}, {}, function(err, result, next){
+      console.log(err, result);
+      res.send(err ? 500 : 200, err || result);
       next();
     })
   };
 
   var put = function(repo, req, res, next){
-    repo.update({}, {}, function(err, result){
+    repo.update({}, {}, function(err, result, next){
       res.send(err ? 500 : 201, err || result);
       next();
     })
   };
 
   var post = function(repo, req, res, next){
-    repo.create({}, {}, function(err, result){
-      res.send(err || result);
+    console.log(req.body);
+    repo.create(req.body, {}, function(err, result, next){
+      console.log(err);
+      console.log(result);
+      res.send(err ? 500 : 200, err || result);
       next();
     })
   };
 
   var del = function(repo, req, res, next){
-    repo.remove({}, {}, function(err, result){
-      res.send(err || result);
+    repo.remove({}, {}, function(err, result, next){
+      res.send(err ? 500 : 200, err || result);
       next();
     })
   };
 
   exports = module.exports = function(req, res, next){
-    console.log("--------------------")
-    console.log(req.url);
-    console.log(req.method);
     var segment = req.url.split(/\//, 2)[1];
-    console.log(segment);
-    console.log(db[segment]);
-    console.log(db[segment].find);
     var handler = next;
     if(db[segment])
     {
@@ -52,14 +50,17 @@ var _ = require('underscore'),
           handler = function () {
             put(db[segment], req, res, next);
           };
+          break;
         case 'POST':
           handler = function () {
             post(db[segment], req, res, next);
           };
+          break;
         case 'DELETE':
           handler = function () {
             del(db[segment], req, res, next);
           };
+          break;
       }
     }
     handler();

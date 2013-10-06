@@ -1,0 +1,46 @@
+<polymer-element name="framework-resource">
+		<script>
+			Polymer("framework-resource", {
+				url: "",
+				create: function(data){
+					var self = this;
+					$.ajax({
+						url: self.url,
+						method: 'POST',
+						data: data
+					}).done(function(d){
+						self.data.push(d);
+						self.async(function(){
+							self.fire('add-complete', {
+								data: d
+							});
+						});
+					});
+				},
+				update: function(id, data){
+
+				},
+				remove: function(id){
+
+				},
+				fetch: function(id){
+
+				},
+				query: function(query){
+					var self = this;
+					$.ajax({
+						url: self.url,
+						method: 'GET',
+						data: query
+					}).done(function(data, status, xhr){
+						self.data = data;
+						self.async(function(){
+							self.fire('query-complete', {
+								data: self.data
+							});
+						});
+					});
+				}
+			})
+		</script>
+</polymer-element>

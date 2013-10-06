@@ -1,49 +1,20 @@
 extends layout
 
+block head
+
+	link(rel="import", href="elements/framework-resource.html")
+
 block content
 
-	polymer-element(name="framework-resource")
-		script
-			Polymer("framework-resource", {
-				url: "",
-				create: function(data){
-					console.log(this.url);
-					var self = this;
-					self.data.push(data);
-					self.async(function(){
-						self.fire('add-complete', {
-							data: data
-						});
-					});
-				},
-				update: function(id, data){
-
-				},
-				remove: function(id){
-
-				},
-				fetch: function(id){
-
-				},
-				query: function(query){
-					var self = this;
-					self.async(function(){
-						self.fire('query-complete', {
-							data: self.data
-						});
-					});
-				}
-			})
-
 	polymer-element(name="meetings-resource", extends="framework-resource")
-		script
+		script.
 			Polymer("meetings-resource", {
 				url: '/api/meetings',
 				data: [
-					{id:1, title: "Meeting 1"},
-					{id:2, title: "Meeting 2"},
-					{id:3, title: "Meeting 3"},
-					{id:4, title: "Meeting 4"}
+					{_id:1, title: "Meeting 1"},
+					{_id:2, title: "Meeting 2"},
+					{_id:3, title: "Meeting 3"},
+					{_id:4, title: "Meeting 4"}
 				]
 			});
 
@@ -74,7 +45,7 @@ block content
 					template(repeat="{{meeting in meetings}}")
 						tr
 							td
-								a(href="/meeting/{{meeting.id}}") {{meeting.title}}
+								a(href="/meeting/{{meeting._id}}") {{meeting.title}}
 					
 		script
 			Polymer("meetings-list", {
