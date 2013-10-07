@@ -62,5 +62,6 @@ _.extend(Repository.prototype, {
 
 // create the repositories
 exports = module.exports = _.extend(this, {
-  meetings: new Repository({name:'Meetings'})
+  meetings: new Repository({name:'Meetings'}),
+  meetingslog: new Repository({name: 'MeetingsLog'})
 });

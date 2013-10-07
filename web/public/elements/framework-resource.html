@@ -1,5 +1,13 @@
 <polymer-element name="framework-resource">
 		<script>
+		(function(){
+			function unwrapUrl(url){
+				if(typeof url == "Function")
+					return url();
+				return url;
+			};
+
+
 			Polymer("framework-resource", {
 				url: "",
 				create: function(data){
@@ -53,6 +61,7 @@
 						});
 					});
 				}
-			})
+			});
+		})();
 		</script>
 </polymer-element>
