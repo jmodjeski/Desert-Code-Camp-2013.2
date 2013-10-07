@@ -1,10 +1,11 @@
 
 var _ = require('underscore'),
-  db = require('../db');
+  db = require('../db'),
+  url = require('url');
 
   var get = function(repo, req, res, next){
-    var id = req.url.split(/\//, 3)[2];
-    var query = req.params || {};
+    var id = url.parse(req.url).pathname.split(/\//, 3)[2];
+    var query = req.query || {};
     if(id) {
       query = {_id: id};
     }
@@ -38,7 +39,7 @@ var _ = require('underscore'),
   };
 
   exports = module.exports = function(req, res, next){
-    var segment = req.url.split(/\//, 2)[1];
+    var segment = url.parse(req.url).pathname.split(/\//, 2)[1];
     var handler = next;
     if(db[segment])
     {
