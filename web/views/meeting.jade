@@ -3,6 +3,7 @@ extends layout
 block head
 
 	link(rel="import", href="/elements/framework-clock.html")
+	link(rel="import", href="/elements/framework-participant.html")
 
 block content
 	h1 Meeting #{id}
@@ -12,3 +13,7 @@ block content
 			framework-clock(id="start")
 		.col-md-4.col-md-offset-2
 			framework-clock(id="stop", run="true")
+
+	//- .row
+	//- 	framework-participant(id="test", edit="edit")
+	//- 	framework-participant(id="test2")
