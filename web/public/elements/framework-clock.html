@@ -1,52 +1,71 @@
 
 <!-- Derived from http://commons.wikimedia.org/wiki/File:Animated_analog_SVG_clock.svg -->
 
-<polymer-element name="framework-clock" attributes="time, run">
+<polymer-element name="framework-clock" attributes="time">
 	<script type="text/javascript">
-		Polymer('framework-clock', {
-			time: new Date(),
-			run: false,
-			created: function(){
-				var self = this;
-				self.timeChanged();
-			},
+		(function(){ 
+			var durations = {
+				hour: "43200s",
+				minute: "3600s",
+				second: "60s"
+			};
 
-			runChanged: function(){
-				var self = this;
-				if(self.run && !self.interval)
-				{
-					self.interval = setInterval(function(){
-						self.time = new Date();
-					}, 1000);
+			Polymer('framework-clock', {
+				time: new Date(),
+				
+				created: function(){
+					var self = this;
+					self.timeChanged();
+				},
+
+				run: function(){
+					var self = this;
+
+					self.$.secondAnimate.setAttribute("dur", durations.second);
+					self.$.secondShadowAnimate.setAttribute("dur", durations.second);
+
+					self.$.minuteAnimate.setAttribute("dur", durations.minute);
+					self.$.minuteShadowAnimate.setAttribute("dur", durations.minute);
+
+					self.$.hourAnimate.setAttribute("dur", durations.hour);
+					self.$.hourShadowAnimate.setAttribute("dur", durations.hour);
+				},
+
+				stop: function(){
+					var self = this;
+
+					self.$.secondAnimate.setAttribute("dur", "0s");
+					self.$.secondShadowAnimate.setAttribute("dur", "0s");
+
+					self.$.minuteAnimate.setAttribute("dur", "0s");
+					self.$.minuteShadowAnimate.setAttribute("dur", "0s");
+
+					self.$.hourAnimate.setAttribute("dur", "0s");
+					self.$.hourShadowAnimate.setAttribute("dur", "0s");
+				},
+
+				timeChanged: function() {
+					var self = this;
+					var d = self.time;
+					// Get current seconds.
+					var s = d.getSeconds();
+					// Get current minutes and add the current second.
+					var m = d.getMinutes() + s / 60;
+					// Get current hours and add the current minute.
+					var h = d.getHours() + m / 60;
+
+					// Rotate the second clockhand to the current seconds.
+					self.$.Second.setAttribute("transform", "rotate(" + (s * 6) + ", 256, 256)");
+					self.$.SecondShadow.setAttribute("transform", "rotate(" + (s * 6) + ", 253, 259)");
+					// Rotate the minute clockhand to the current minute.
+					self.$.Minute.setAttribute("transform", "rotate(" + (m * 6) + ", 256, 256)");
+					self.$.MinuteShadow.setAttribute("transform", "rotate(" + (m * 6) + ", 254, 258)");
+					// Rotate the hour clockhand to the current hour.
+					self.$.Hour.setAttribute("transform", "rotate(" + (h * 30) + ", 256, 256)");
+					self.$.HourShadow.setAttribute("transform", "rotate(" + (h * 30) + ", 255, 257)");
 				}
-				else if(!self.run && self.interval)
-				{
-					clearInterval(self.interval);
-					self.interval = false;
-				}
-			},
-
-			timeChanged: function() {
-				var self = this;
-				var d = self.time;
-				// Get current seconds.
-				var s = d.getSeconds();
-				// Get current minutes and add the current second.
-				var m = d.getMinutes() + s / 60;
-				// Get current hours and add the current minute.
-				var h = d.getHours() + m / 60;
-
-				// Rotate the second clockhand to the current seconds.
-				self.$.Second.setAttribute("transform", "rotate(" + (s * 6) + ", 256, 256)");
-				self.$.SecondShadow.setAttribute("transform", "rotate(" + (s * 6) + ", 253, 259)");
-				// Rotate the minute clockhand to the current minute.
-				self.$.Minute.setAttribute("transform", "rotate(" + (m * 6) + ", 256, 256)");
-				self.$.MinuteShadow.setAttribute("transform", "rotate(" + (m * 6) + ", 254, 258)");
-				// Rotate the hour clockhand to the current hour.
-				self.$.Hour.setAttribute("transform", "rotate(" + (h * 30) + ", 256, 256)");
-				self.$.HourShadow.setAttribute("transform", "rotate(" + (h * 30) + ", 255, 257)");
-			}
-		})
+			});
+		})();
 	</script>
 	<template>
 		<!--
@@ -364,32 +383,32 @@
 				C266.79,109.068,265.623,110.899,264.889,112.41z" />
 			<g id="Hour">
 				<use xlink:href="#p1">
-					<animateTransform attributeName="transform" type="rotate" dur="0s" values="0, 256, 256; 360, 256, 256" repeatCount="1" />
+					<animateTransform id="hourAnimate" attributeName="transform" type="rotate" dur="0s" values="0, 256, 256; 360, 256, 256" repeatCount="indefinite" />
 				</use>
 			</g>
 			<g id="HourShadow">
 				<use filter="url(#f5)" opacity="0.5" x="-1" y="1" xlink:href="#p1">
-					<animateTransform attributeName="transform" type="rotate" dur="0s" values="0, 255, 257; 360, 255, 257" repeatCount="1" />
+					<animateTransform id="hourShadowAnimate" attributeName="transform" type="rotate" dur="0s" values="0, 255, 257; 360, 255, 257" repeatCount="indefinite" />
 				</use>
 			</g>
 			<g id="Minute">
 				<use xlink:href="#p2">
-					<animateTransform attributeName="transform" type="rotate" dur="0s" values="0, 256, 256; 360, 256, 256" repeatCount="1" />
+					<animateTransform id="minuteAnimate" attributeName="transform" type="rotate" dur="0s" values="0, 256, 256; 360, 256, 256" repeatCount="indefinite" />
 				</use>
 			</g>
 			<g id="MinuteShadow">
 				<use filter="url(#f5)" opacity="0.5" x="-2" y="2" xlink:href="#p2">
-					<animateTransform attributeName="transform" type="rotate" dur="0s" values="0, 254, 258; 360, 254, 258" repeatCount="1" />
+					<animateTransform id="minuteShadowAnimate" attributeName="transform" type="rotate" dur="0s" values="0, 254, 258; 360, 254, 258" repeatCount="indefinite" />
 				</use>
 			</g>
 			<g id="Second">
 				<use xlink:href="#p3">
-					<animateTransform attributeName="transform" type="rotate" dur="0s" values="0, 256, 256; 360, 256, 256" repeatCount="1" />
+					<animateTransform id="secondAnimate" attributeName="transform" type="rotate" dur="0s" values="0, 256, 256; 360, 256, 256" repeatCount="indefinite" />
 				</use>
 			</g>
 			<g id="SecondShadow">
 				<use filter="url(#f5)" opacity="0.5" x="-3" y="3" xlink:href="#p3">
-					<animateTransform attributeName="transform" type="rotate" dur="0s" values="0, 253, 259; 360, 253, 259" repeatCount="1" />
+					<animateTransform id="secondShadowAnimate" attributeName="transform" type="rotate" dur="0s" values="0, 253, 259; 360, 253, 259" repeatCount="indefinite" />
 				</use>
 			</g>
 			<circle fill="url(#f7)" filter="url(#f6)" cx="256" cy="256" r="7.5" />
