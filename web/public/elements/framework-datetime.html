@@ -1,0 +1,48 @@
+
+<polymer-element name="framework-datetime" attributes="datetime" >
+	<template>
+		<time datetime="{{datetime}}">
+			{{formatted}}
+		</time>
+	</template>
+	<script>
+	Polymer("framework-datetime", {
+		
+		datetimeChanged: function(){
+			var self = this;
+			self.moment = moment(self.datetime);
+			self.formatted = self.moment.format("MMMM Do YYYY HH:mm A");
+		}
+	});
+	</script>
+</polymer-element>
+
+<polymer-element name="framework-datetime-duration" attributes="begin, end" >
+	<template>
+		<duration seconds="{{seconds}}">
+			{{formatted}}
+		</duration>
+	</template>
+	<script>
+	Polymer("framework-datetime-duration", {
+
+		updateDuration: function(){
+			var self = this;
+			if(self.begin && self.end) {
+				self.formatted = moment.duration(moment(self.begin).diff(self.end));
+				self.formatted = self.duration.humanize(true);
+				self.seconds = self.duration.get("s");
+			}
+		},
+		
+		beginChanged: function(){
+			var self = this;
+			self.updateDuration();
+		},
+		endChanged: function(){
+			var self = this;
+			self.updateDuration();
+		}		
+	});
+	</script>
+</polymer-element>
