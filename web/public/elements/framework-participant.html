@@ -1,0 +1,53 @@
+<polymer-element
+	name="framework-participant"
+	attributes="edit"
+	>
+	<script>
+		Polymer('framework-participant', {
+			participant: {
+				type: '',
+				cost: 0.0,
+				count: 0
+			},
+			editMode: false,
+			created: function (participant) {
+				var self = this;
+				if (participant) 
+					self.participant = self.participant.extend(participant);
+			},
+			editChanged: function () {
+				var self = this;
+				self.editMode = !self.editMode;
+				//propagate to DB
+			}
+		});
+	</script>
+	<template>
+		{{#unless editMode}}
+			<div class="span2">{{participant.type}}</div>
+			<div class="span1">{{participant.cost}}</div>
+			<div class="span1">{{participant.count}}</div>
+		{{/unless}}
+		{{#if editMode}}
+			<div class="span2">
+				<input 
+					placeholder="{{participant.type}}" 
+					value="{{participant.type}}" 
+				/>
+			</div>
+			<div class="span1">
+				<input 
+					placeholder="{{participant.cost}}"
+					value="{{particitpant.cost}}"
+				/>
+			</div>
+			<div class="span1">
+				<input 
+					type="number"
+					placeholder="{{participant.count}}"
+					value="{{participant.count}}"
+				/>
+			</div>
+		{{/if}}
+	</template>
+</polymer-element>

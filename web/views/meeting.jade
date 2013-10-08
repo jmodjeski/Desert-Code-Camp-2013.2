@@ -3,12 +3,22 @@ extends layout
 block head
 
 	link(rel="import", href="/elements/framework-clock.html")
+	link(rel="import", href="/elements/framework-participant.html")
 	link(rel="import", href="/elements/framework-highchart.html")
 	link(rel="import", href="/elements/framework-resource.html")
 
 block content
 	h1 Meeting #{id}
 
+	.row
+		.col-md-4.col-md-offset-1
+			framework-clock(id="start")
+		.col-md-4.col-md-offset-2
+			framework-clock(id="stop", run="true")
+
+	//- .row
+	//- 	framework-participant(id="test", edit="edit")
+	//- 	framework-participant(id="test2")
 	polymer-element(name="meeting-log-resource", extends="framework-resource")
 		script.
 			Polymer("meeting-log-resource",{
