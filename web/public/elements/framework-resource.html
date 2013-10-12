@@ -10,6 +10,9 @@
 
 			Polymer("framework-resource", {
 				url: "",
+				parse: function(d){
+					return d;
+				},
 				create: function(data){
 					var self = this;
 					$.ajax({
@@ -17,6 +20,7 @@
 						method: 'POST',
 						data: data
 					}).done(function(d){
+						d = self.parse(d);
 						self.data.push(d);
 						self.async(function(){
 							self.fire('add-complete', {
@@ -53,7 +57,9 @@
 						method: 'GET',
 						data: query
 					}).done(function(data, status, xhr){
-						self.data = data;
+						self.data = data.map(function(d){
+							return self.parse(d);
+						});
 						self.async(function(){
 							self.fire('query-complete', {
 								data: self.data
