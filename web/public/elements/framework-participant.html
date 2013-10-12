@@ -4,50 +4,68 @@
 	>
 	<script>
 		Polymer('framework-participant', {
-			participant: {
-				type: '',
-				cost: 0.0,
-				count: 0
+			created: function () {
+				this.participant = {
+					type: 'unknown',
+					cost: 0.0,
+					count: 0
+				};
 			},
-			editMode: false,
-			created: function (participant) {
-				var self = this;
-				if (participant) 
-					self.participant = self.participant.extend(participant);
+			toggle: function (edit) {
+				if (this.edit !== edit) {
+					this.edit = edit;
+				}
 			},
-			editChanged: function () {
-				var self = this;
-				self.editMode = !self.editMode;
+			editChanged: function (oldVal) {
+				console.log('oldVal', oldVal);
+				// if (attrName === 'edit'
+				// 	&& this.edit !== oldVal)
+				// 	this.edit = oldVal ? true : false;
+				// if (attrName === 'edit' 
+				// 	&& this.edit !== newVal) {
+				// 	this.edit = newVal;
+				// }
 				//propagate to DB
 			}
 		});
 	</script>
 	<template>
-		{{#unless editMode}}
-			<div class="span2">{{participant.type}}</div>
-			<div class="span1">{{participant.cost}}</div>
-			<div class="span1">{{participant.count}}</div>
-		{{/unless}}
-		{{#if editMode}}
-			<div class="span2">
-				<input 
-					placeholder="{{participant.type}}" 
-					value="{{participant.type}}" 
-				/>
-			</div>
-			<div class="span1">
-				<input 
-					placeholder="{{participant.cost}}"
-					value="{{particitpant.cost}}"
-				/>
-			</div>
-			<div class="span1">
-				<input 
-					type="number"
-					placeholder="{{participant.count}}"
-					value="{{participant.count}}"
-				/>
-			</div>
-		{{/if}}
+		<span class="wrapper" on-click="toggle">
+			<template if="{{!edit}}">
+				<span class="span2">{{participant.type}}</span>
+				<span class="span1">{{participant.cost}}</span>
+				<span class="span1">{{participant.count}}</span>
+			</template>
+			<template if="{{edit}}">
+				<span class="span2">
+					<input 
+						placeholder="{{participant.type}}" 
+						value="{{participant.type}}" 
+					/>
+				</span>
+				<span class="span1">
+					<input 
+						placeholder="{{participant.cost}}"
+						value="{{particitpant.cost}}"
+					/>
+				</span>
+				<span class="span1">
+					<input 
+						type="number"
+						placeholder="{{participant.count}}"
+						value="{{participant.count}}"
+					/>
+			</span>
+		</template>
+		</span>
 	</template>
+	<style>
+		@host {
+			.wrapper {
+				padding: 8px;
+				opacity: 50%;
+				background-color: #222;
+			}
+		}
+	</style>
 </polymer-element>
