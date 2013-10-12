@@ -33,6 +33,7 @@ block content
 					th Start
 					th End
 					th Duration
+					th Cost
 				tbody
 					template(repeat="{{log in logs}}")
 						tr
@@ -42,6 +43,8 @@ block content
 								framework-datetime(datetime="{{log.endTime}}")
 							td 
 								framework-datetime-duration(begin="{{log.startTime}}", end="{{log.endTime}}")
+							td 
+								.pull-right $ {{ log.cost }}
 		script.
 			Polymer("meeting-log-list", {
 				logs: [],
@@ -51,8 +54,48 @@ block content
 				}
 			});
 
-	// using lightdom here so this element is inserted into
-	// the actual dom instead of a shadow root.
+	polymer-element(name="meeting-log-chart")
+		template
+			framework-highchart(id="chart")
+		script
+			Polymer("meeting-log-chart", {
+
+				created: function(){
+					var self = this;
+
+					self.$.chart.config = {
+						chart: {
+							type: 'column'
+						},
+						title: {
+							text: 'Meeting Cost'
+						},
+						subtitle: {
+							text: 'by type'
+						}
+					};
+				},
+
+				dataChanged: function(){
+					var self = this;
+					//- var categories = _.uniq(this.data.map(function(p){
+					//- 	return p.startTime;
+					//- }));
+
+					//- var participantTypes = _.flatten(this.data, function(x){
+
+					//- });
+					//- console.log()
+
+					//- self.$.chart.config.xAxis = {
+					//- 	categories: categories,
+					//- 	series: [
+
+					//- 	]
+					//- };
+				}
+			})
+
 	polymer-element(name="meeting-detail-app")
 		template
 			.row
@@ -73,11 +116,11 @@ block content
 
 			.row
 				.col-md-10.col-md-offset-1
-					framework-highchart(id="chart")
+					meeting-log-chart(id="chart", style="height: 400px;")
 			.row
 				.col-md-10.col-md-offset-1
 					meeting-log-list(id="list")
-			meeting-log-resource(id="resource", on-query-complete="yy")
+			meeting-log-resource(id="resource", on-query-complete="populateMeetingLogs")
 		script.
 			Polymer("meeting-detail-app", {
 				publish: {
@@ -86,8 +129,8 @@ block content
 
 				created:function(){
 					var self = this;
-					self.$.start.run();
-					self.$.stop.run();
+					//- self.$.start.run();
+					//- self.$.stop.run();
 				},
 
 				meetingIdChanged: function(){
@@ -97,10 +140,46 @@ block content
 
 				initialize: function(){
 					var self = this;
-					self.$.resource.query({meeting_id: self.meetingId});					
+					self.$.resource.query({meeting_id: self.meetingId});
+
+					// mock log data
+					for(var i = 0 ; i < 10; i++)
+					{
+						var start = moment().add("d", i);
+						var end = moment().add("d", i).add({hours:1, minutes:10});
+						var sample = {
+							startTime: start.toDate(),
+							endTime: end.toDate(),
+							totalTime: moment.duration(end.diff(start)).asSeconds(),
+							cost: 0,
+							tags: [
+									'planning'
+							],
+							participants: [
+								{
+									type: 'consultant',
+									rate: 100,
+									count: 5,
+									totalCost: 0,
+								},
+								{
+									type: 'qa',
+									rate: 100,
+									count: 3,
+									totalCost: 0
+								}
+							]
+						};
+						sample.participants.forEach(function(x){
+							var r = (x.rate * x.count) * moment.duration(sample.totalTime, "s").asHours();
+							x.totalCost = Math.round(r * 100) * 0.01;
+							sample.cost =  sample.cost + x.totalCost;
+						});
+						self.$.list.logs.push(sample);
+					}
 				},
 
-				yy: function(e, sender, detail){
+				populateMeetingLogs: function(e, sender, detail){
 					var self = this;
 					//self.$.list.logs = sender.data;
 				},
@@ -117,3 +196,6 @@ block content
 			})
 
 	meeting-detail-app(meetingid="#{id}")
+
+	script.
+		Platform.ShadowCSS.strictStyling = true;
