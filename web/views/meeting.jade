@@ -56,10 +56,18 @@ block content
 
 	polymer-element(name="meeting-log-chart")
 		template
+			select.pull-right(id="by", value="{{by}}")
+				option(value="day") Day
+				option(value="month") Month
 			framework-highchart(id="chart")
 		script
 			Polymer("meeting-log-chart", {
-
+				dateFormats: {
+					day: 'MMM Do, YYYY',
+					month: 'MMM, YYYY',
+					year: 'YYYY'
+				},
+				by: "month",
 				created: function(){
 					var self = this;
 
@@ -72,27 +80,96 @@ block content
 						},
 						subtitle: {
 							text: 'by type'
-						}
+						},
+						xAxis: {
+							categories: []
+						},
+						series: []
 					};
+				},
+
+				byChanged: function(){
+					var self = this;
+					self.refreshChartData();
 				},
 
 				dataChanged: function(){
 					var self = this;
-					//- var categories = _.uniq(this.data.map(function(p){
-					//- 	return p.startTime;
-					//- }));
+					self.refreshChartData();
+				},
 
-					//- var participantTypes = _.flatten(this.data, function(x){
+				refreshChartData: function(){
+					var self = this;
+					var by = self.by;
+					var grouping = function(p){
+							return moment(p.startTime).startOf(by).format(self.dateFormats[by]);
+						};
 
-					//- });
-					//- console.log()
+					var grouped = _.chain(self.data)
+						.map(function(x){ 
+							return _.map(x.participants, function(p){
+								return {
+									startTime: x.startTime, 
+									type: p.type, 
+									cost: p.totalCost
+								};
+							});
+						})
+						.flatten()
+						.groupBy(grouping)
+						.forEach(function(x, k, t) { 
+							t[k] = _.groupBy(_.flatten(x), 'type'); 
+							_.forEach(t[k], function(x, k, t){
+								t[k] = _.reduce(x, function(result, v){
+									return result + v.cost;
+								}, 0);
+							});
+						})
+						.value();
 
-					//- self.$.chart.config.xAxis = {
-					//- 	categories: categories,
-					//- 	series: [
+					console.log(grouped);
 
-					//- 	]
-					//- };
+					var categories = _.keys(grouped);
+
+					var participantTypes = _.uniq(_.flatten(this.data, function(x){
+						return x.participants.map(function(p){
+							return p.type;
+						});
+					}));
+
+					var series = participantTypes.map(function(p){
+						return {
+							name: p,
+							data: _.map(grouped, function(x){
+								return x[p] || 0;	
+							})
+						};
+					});
+
+					var chart = self.$.chart.getChart();			
+					if(chart.xAxis)
+						chart.xAxis[0].setCategories(_.keys(grouped), false);
+					else
+						chart.addAxis({categories: _.keys(grouped)}, true, false);
+					var seriesIndex = 0;
+					// add/update current chart series
+					for(; seriesIndex < series.length; seriesIndex++)
+					{
+						var s = series[seriesIndex];
+						if(seriesIndex < chart.series.length)
+						{
+							chart.series[seriesIndex].update(s, false);
+						} else {
+							chart.addSeries(s, false);
+						}
+					}
+					// remove unessary series
+					while(seriesIndex < chart.series.length)
+					{
+						chart.series[seriesIndex].remove(false);
+					}
+
+					chart.redraw();
 				}
 			})
 
@@ -105,18 +182,9 @@ block content
 					framework-clock(id="stop")
 
 			.row
-				.col-md-4.col-md-offset-1
-					button(id="startClock", on-click="toggleStartClock") Toggle Start Clock
-				.col-md-4.col-md-offset-2
-					button(id="stopClock", on-click="toggleStopClock") Toggle Stop Clock
-
-			//- .row
-			//- 	framework-participant(id="test", edit="edit")
-			//- 	framework-participant(id="test2")
-
-			.row
 				.col-md-10.col-md-offset-1
 					meeting-log-chart(id="chart", style="height: 400px;")
+
 			.row
 				.col-md-10.col-md-offset-1
 					meeting-log-list(id="list")
@@ -142,11 +210,16 @@ block content
 					var self = this;
 					self.$.resource.query({meeting_id: self.meetingId});
 
+					var randomInt = function(min, max)
+					{
+						return Math.floor(Math.random() * (max - min) + min);
+					}
+
 					// mock log data
 					for(var i = 0 ; i < 10; i++)
 					{
 						var start = moment().add("d", i);
-						var end = moment().add("d", i).add({hours:1, minutes:10});
+						var end = moment().add("d", i).add({hours: randomInt(0,3), minutes:randomInt(5, 55)});
 						var sample = {
 							startTime: start.toDate(),
 							endTime: end.toDate(),
@@ -157,15 +230,21 @@ block content
 							],
 							participants: [
 								{
-									type: 'consultant',
-									rate: 100,
-									count: 5,
+									type: 'Developer',
+									rate: randomInt(100, 150),
+									count: randomInt(1,5),
 									totalCost: 0,
 								},
 								{
-									type: 'qa',
-									rate: 100,
-									count: 3,
+									type: 'QA',
+									rate: randomInt(100, 150),
+									count: randomInt(1,3),
+									totalCost: 0
+								},
+								{
+									type: 'Offshore',
+									rate: randomInt(75, 100),
+									count: randomInt(1, 8),
 									totalCost: 0
 								}
 							]
@@ -177,6 +256,7 @@ block content
 						});
 						self.$.list.logs.push(sample);
 					}
+					self.$.chart.data = self.$.list.logs;
 				},
 
 				populateMeetingLogs: function(e, sender, detail){
@@ -197,5 +277,3 @@ block content
 
 	meeting-detail-app(meetingid="#{id}")
 
-	script.
-		Platform.ShadowCSS.strictStyling = true;
