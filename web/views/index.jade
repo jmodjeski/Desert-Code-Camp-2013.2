@@ -34,7 +34,7 @@ block content
 	polymer-element(name="framework-confirm-removal")
 		template
 			button.btn.btn-danger.pull-right(id="remove", type="button", on-click="check") Remove
-			.btn-group.pull-right(id="check")
+			.btn-group.pull-right(id="check", on-mouseleave="cancel")
 				button.btn.btn-danger(id="confirm", type="button", on-click="confirm") Confirm Removal
 				button.btn.btn-default(id="cancel", type="button", on-click="cancel") Cancel
 
@@ -47,38 +47,54 @@ block content
 					var self = this;
 					$(self.$.check).hide();
 				},
-				check: function(){
+				check: function(e){
 					var self = this;
+					e.stopPropagation();
+					self.active = true;
 					$(self.$.remove).hide();
 					$(self.$.check).show();
 				},
-				confirm: function(){
+				confirm: function(e){
 					var self = this;
-					self.async(function(){
-						self.cancel();
-						self.fire("remove", self.data);
-					});
+					e.stopPropagation();
+					//- self.async(function(){
+					self.cancel(e);
+					self.fire("remove", self.data);
+					//- })
 				},
-				cancel: function(){
+				cancel: function(e){
 					var self = this;
-					$(self.$.remove).show();
-					$(self.$.check).hide();
+					e.stopPropagation();
+					if(self.active)
+					{
+						$(self.$.remove).show();
+						$(self.$.check).hide();
+						self.active = false;
+					}
 				}
 			});
 
 	polymer-element(name="meetings-list")
+		style.
+			.controls {
+				visibility: hidden;
+			}
+			tr:hover .controls {
+				visibility: visible;
+			}
 		template
-			table.table.table-striped
+			table.table.table-hover
 				thead
-					th Title
-					th
+					tr
+						th Title
+						th
 				tbody
 					template(repeat="{{meeting in meetings}}")
-						tr
+						tr(on-click="handleRowSelect")
 							td
-								a(href="/meeting/{{meeting.id}}") {{meeting.title}}
+								a(class="default-action", href="/meeting/{{meeting.id}}") {{meeting.title}}
 							td
-								framework-confirm-removal(on-remove="removeItem", data="{{meeting}}")
+								framework-confirm-removal(class="controls", on-remove="removeItem", data="{{meeting}}")
 					
 		script.
 			Polymer("meetings-list", {
@@ -97,6 +113,12 @@ block content
 					self.async(function(){
 						self.fire('remove-meeting', sender);
 					});
+				},
+				handleRowSelect: function(e, sender, detail){
+					console.log("event", e);
+					console.log("sender", sender);
+					console.log("detail", detail);
+					detail.querySelector(".default-action").click();
 				}
 			});
 
