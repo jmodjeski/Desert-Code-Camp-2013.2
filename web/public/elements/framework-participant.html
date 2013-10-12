@@ -30,6 +30,15 @@
 		});
 	</script>
 	<template>
+		<style>
+			@host {
+				:scope {
+					padding: 8px !important;
+					opacity: 30%;
+					background-color: #ccc;
+				}
+			}
+		</style>
 		<span class="wrapper" on-click="toggle">
 			<template if="{{!edit}}">
 				<span class="span2">{{participant.type}}</span>
@@ -59,13 +68,4 @@
 		</template>
 		</span>
 	</template>
-	<style>
-		@host {
-			.wrapper {
-				padding: 8px;
-				opacity: 50%;
-				background-color: #222;
-			}
-		}
-	</style>
 </polymer-element>
