@@ -13,12 +13,11 @@ block head
 block content
 	h1 Meeting #{id}
 
-	polymer-element(name="participant-toggle")
-		template
+	polymer-element(name="participant-rows")
+		template(repeat="{{participants}}")
 			framework-participant
-			br
 		script.
-			Polymer("participant-toggle")
+			Polymer("participant-rows")
 
 	polymer-element(name="meeting-log-resource", extends="framework-resource")
 		script.
@@ -189,7 +188,10 @@ block content
 					framework-clock(id="stop")
 
 			.row
-				participant-toggle
+				participant-rows
+
+			.row
+				framework-participant(id="new_participant")
 	
 			.row
 				.col-md-10.col-md-offset-1
