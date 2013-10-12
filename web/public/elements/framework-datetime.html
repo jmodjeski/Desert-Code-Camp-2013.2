@@ -29,9 +29,20 @@
 		updateDuration: function(){
 			var self = this;
 			if(self.begin && self.end) {
-				self.formatted = moment.duration(moment(self.begin).diff(self.end));
-				self.formatted = self.duration.humanize(true);
-				self.seconds = self.duration.get("s");
+				self.duration = moment.duration(moment(self.end).diff(self.begin));
+				var formatted = " ";
+				if(self.duration.hours() > 0)
+				{
+					formatted = self.duration.hours() + " Hour"
+						+ (self.duration.hours() > 1 ? "s " : " ");
+				}
+				if(self.duration.minutes() > 0)
+				{
+					formatted = formatted + self.duration.minutes() + " Minute"
+						+ (self.duration.minutes() > 1 ? "s " : " ");
+				}
+				self.formatted = formatted;
+				self.seconds = self.duration.asSeconds();
 			}
 		},
 		

@@ -1,15 +1,34 @@
-<polymer-element name="framework-highchart">
+<polymer-element name="framework-highchart" attributes="dataSourceId, configId">
 	<template>
-		<div id="chart">
-		</div>
+		<div id="chart"></div>
 	</template>
 	<script>
 	Polymer("framework-highchart", {
+		config: {
+			chart: {}
+		},
+		
 		created: function(){
 			var self = this;
+			self.config.chart.renderTo = self.$.chart;
+			self.chartInstance = new Highcharts.Chart(self.config);
+		},
 
-			$(self.$.chart).highcharts();
+		configChanged: function(){
+			var self = this;
+
+			if(self.chartInstance)
+				self.chartInstance.destroy();
+
+			self.config.chart.renderTo = self.$.chart;
+			self.chartInstance = new Highcharts.Chart(self.config);
+		},
+
+		getChart: function(){
+			var self = this;
+			return self.chartInstance;
 		}
 	})
 	</script>
 </polymer-element>
+
