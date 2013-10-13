@@ -56,6 +56,9 @@ var _ = require('underscore'),
     var urlParts = url.parse(req.url).pathname.split(/\//);
     if (urlParts.length < 3) {
       repo.create(req.body, {}, function(err, result){
+        res.set({
+          'Location': result._id
+        });
         res.send(err ? 500 : 201, err || result);
       });
     } else {
@@ -68,8 +71,10 @@ var _ = require('underscore'),
           findSubModel(rootModel, urlParts.slice(3, urlParts.length), function (err, model) {
             if (Object.prototype.toString.call(model) === '[object Array]') {
               model.push(req.body);
-              rootModel.save(function (err) {
-                console.log('save err', err);
+              rootModel.save(function (err, updatedRoot, recordCount) {
+                res.set({
+                  'Location': model[model.length - 1]._id
+                });
                 res.send(err ? 500 : 201, err);
               });
             }
