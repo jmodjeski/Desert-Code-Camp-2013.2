@@ -35,7 +35,7 @@
 					var self = this;
 					$.ajax({
 						url: self.url + '/' + id,
-						method: 'PATCH',
+						method: 'PUT',
 						data: data
 					}).done(function () {
 						self.async(function () {
