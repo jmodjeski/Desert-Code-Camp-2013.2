@@ -11,7 +11,7 @@ block head
 	link(rel="import", href="/elements/framework-datetime.html")
 
 block content
-	h1 Meeting #{_id}
+	h1 Meeting #{id}
 
 	polymer-element(
 		name="participant-rows"
@@ -87,7 +87,7 @@ block content
 				option(value="day") Day
 				option(value="month") Month
 			framework-highchart(id="chart")
-		script
+		script.
 			Polymer("meeting-log-chart", {
 				dateFormats: {
 					day: 'MMM Do, YYYY',
@@ -211,7 +211,7 @@ block content
 			.row
 				participant-rows(
 					id="participants-control"
-					meetingid="#{id}")
+					meetingid="#{_id}")
 
 			.row
 				.col-md-10.col-md-offset-1
@@ -307,5 +307,5 @@ block content
 				}
 			})
 
-	meeting-detail-app(meetingid="#{_id}")
+	meeting-detail-app(meetingid="#{id}")
 

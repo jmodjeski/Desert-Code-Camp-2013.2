@@ -3,19 +3,44 @@ var _ = require('underscore'),
   db = require('../db'),
   url = require('url');
 
+  var findModel = function (repo, id, segments, callback, query) {
+    if (!id)
+      repo.find(query, callback);
+    else
+      repo.findById(id, function (err, model) {
+        if (segments.length > 0)
+          findSubModel(model, segments, callback);
+        else
+          callback(err, model);
+      });
+  }
+
+  var findSubModel = function (model, segments, callback) {
+    if (segments.length === 1) {
+      callback(undefined, model[segments[0]]);
+    } else {
+      model[segments[0]].findById(segments[1], function (err, m) {
+        if (!err) {
+          model = m;
+          if (segments.length > 2) {
+            segments = segments.slice(2, segments.length);
+            findSubModel(model, segments, callback);
+          } else {
+            callback(err, model);
+          }
+        }
+      });
+    }
+  }
+
   var get = function(repo, req, res, next){
     var urlParts = url.parse(req.url).pathname.split(/\//);
     var id = urlParts[2];
     var query = req.query || {};
-    if(id) {
-      repo.findById(id, function (err, model) {
-        res.send(err ? 500 : 200, err || model);
-      });
-    } else {
-      repo.find(query, function (err, model) {
-        res.send(err ? 500 : 200, err || model);
-      });
-    }
+    urlParts = urlParts.slice(3, urlParts.length);
+    findModel(repo, id, urlParts, function (err, model) {
+      res.send(err ? 500 : 200, err || model);
+    }, query);
   };
 
   var put = function(repo, req, res, next){
