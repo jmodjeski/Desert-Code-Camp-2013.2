@@ -53,10 +53,21 @@ var _ = require('underscore'),
   };
 
   var post = function(repo, req, res, next){
-    repo.create(req.body, {}, function(err, result, next){
-      res.send(err ? 500 : 200, err || result);
-      next();
-    })
+    var urlParts = url.parse(req.url).pathname.split(/\//);
+    if (urlParts.length > 2) {
+      repo.create(req.body, {}, function(err, result, next){
+        res.send(err ? 500 : 201, err || result);
+        next();
+      });
+    } else {
+      var id = urlParts[2];
+      findModel(repo, id, urlParts.slice(3, urlParts.length), function (err, model) {
+        console.log('post model', model);
+        // model.create(req.body, {}, function (err, m) {
+        //   res.send(err ? 500 : 201, err || m);
+        // })
+      });
+    }
   };
 
   var del = function(repo, req, res, next){

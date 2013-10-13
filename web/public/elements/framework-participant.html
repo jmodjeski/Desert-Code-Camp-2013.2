@@ -1,14 +1,15 @@
 <polymer-element
 	name="framework-participant"
-	attributes="edit participant"
+	extends="framework-resource"
+	attributes="edit participant meetingId"
 	>
 	<script>
 		Polymer('framework-participant', {
-			url: '/api/participants',
+			url: '/api/meetings/#{meetingId}/participants',
 			created: function () {
 				this.participant = {
 					type: 'participant name',
-					cost: 0.0,
+					rate: 0.0,
 					count: 0
 				};
 				this.edit = false;
@@ -26,7 +27,13 @@
 			},
 			save: function(e) {
 				e.stopPropagation();
-				alert('saving');
+				if (this.url.indexOf('#{meetingId}') > 0) {
+					this.url = this.url.replace('#{meetingId}', this.meetingId);
+				}
+				console.log('this.participant', this.participant);
+				if (!this.participant.id) { // create
+					console.log('this', this.$)
+				}
 				this.toggle(e);
 			},
 			editChanged: function (oldVal) {
@@ -44,7 +51,7 @@
 		<div class="wrapper" on-click="toggle">
 			<template if="{{!edit}}">
 				<span class="span2">{{participant.type}}</span>
-				<span class="span1">{{participant.cost}}</span>
+				<span class="span1">{{participant.rate}}</span>
 				<span class="span1">{{participant.count}}</span>
 			</template>
 			<template if="{{edit}}">
@@ -58,7 +65,7 @@
 				<span class="span1">
 					<input 
 						placeholder="{{participant.cost}}"
-						value="{{particitpant.cost}}"
+						value="{{particitpant.rate}}"
 						on-click="killPropagation"
 					/>
 				</span>

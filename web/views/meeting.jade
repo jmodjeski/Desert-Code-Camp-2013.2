@@ -21,15 +21,18 @@ block content
 			div
 				template(repeat="{{p in participants}}")
 					.row
-						framework-participant(participant="{{p}}")
+						framework-participant(
+							participant="{{p}}"
+							meetingid="#{id}"
+						)
 				.row
-					framework-participant
+					framework-participant(meetingid="#{id}")
 		script.
 			Polymer("participant-rows", {
 				publish: {
 					meetingId: ''
 				},
-				url: '/api/meetings/participants',
+				url: '/api/meetings/#{meetingId}/participants',
 				created: function () {
 					this.participants = [];
 				},
@@ -211,7 +214,7 @@ block content
 			.row
 				participant-rows(
 					id="participants-control"
-					meetingid="#{_id}")
+					meetingid="#{id}")
 
 			.row
 				.col-md-10.col-md-offset-1
@@ -229,8 +232,6 @@ block content
 
 				created:function(){
 					var self = this;
-					//- self.$.start.run();
-					//- self.$.stop.run();
 				},
 
 				meetingIdChanged: function(){
