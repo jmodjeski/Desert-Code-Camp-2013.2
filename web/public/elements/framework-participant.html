@@ -7,12 +7,7 @@
 		Polymer('framework-participant', {
 			url: '/api/meetings/#{meetingId}/participants',
 			created: function () {
-				this.participant = {
-					type: 'participant name',
-					rate: 0.0,
-					count: 0
-				};
-				this.edit = false;
+				this.resetDefaults();
 			},
 			parse: function (data) {
 				return _.defaults({
@@ -32,9 +27,18 @@
 				}
 				console.log('this.participant', this.participant);
 				if (!this.participant.id) { // create
-					console.log('this', this.$)
+					console.log('this', this.fetch);
+					this.create(this.participant);
 				}
 				this.toggle(e);
+			},
+			resetDefaults: function () {
+				this.participant = {
+					type: 'participant name',
+					rate: 0.0,
+					count: 0
+				};
+				this.edit = false;
 			},
 			editChanged: function (oldVal) {
 			}

@@ -54,21 +54,30 @@ var _ = require('underscore'),
 
   var post = function(repo, req, res, next){
     var urlParts = url.parse(req.url).pathname.split(/\//);
-    if (urlParts.length > 2) {
-      repo.create(req.body, {}, function(err, result, next){
+    if (urlParts.length < 3) {
+      repo.create(req.body, {}, function(err, result){
         res.send(err ? 500 : 201, err || result);
-        next();
       });
     } else {
       var id = urlParts[2];
-      findModel(repo, id, urlParts.slice(3, urlParts.length), function (err, model) {
-        console.log('post model', model);
-        // model.create(req.body, {}, function (err, m) {
-        //   res.send(err ? 500 : 201, err || m);
-        // })
+      var rootModel = {};
+      findModel(repo, id, [], function (err, model) {
+        rootModel = model;
+        if (err) res.send(500, err);
+        else {
+          findSubModel(rootModel, urlParts.slice(3, urlParts.length), function (err, model) {
+            if (Object.prototype.toString.call(model) === '[object Array]') {
+              model.push(req.body);
+              rootModel.save(function (err) {
+                console.log('save err', err);
+                res.send(err ? 500 : 201, err);
+              });
+            }
+          }); 
+        }
       });
     }
-  };
+  }  
 
   var del = function(repo, req, res, next){
     var id = req.url.split(/\//, 3)[2];

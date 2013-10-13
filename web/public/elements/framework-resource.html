@@ -15,13 +15,15 @@
 				},
 				create: function(data){
 					var self = this;
+					console.log('data', data);
 					$.ajax({
 						url: self.url,
 						method: 'POST',
 						data: data
 					}).done(function(d){
 						d = self.parse(d);
-						self.data.push(d);
+						if (Object.prototype.toString.call(self.data) === '[object Array]')
+							self.data.push(d); // we only need to do this if it's an array
 						self.async(function(){
 							self.fire('add-complete', {
 								data: d
@@ -61,7 +63,7 @@
 				fetch: function(id){
 					var self = this;
 					$.ajax({
-						url: self.url + '/' + id,
+						url: id ? self.url + '/' + id : self.url,
 						method: 'GET'
 					}).done(function (data, status, xhr) {
 						self.data = data.map(function (d) {

@@ -26,7 +26,10 @@ block content
 							meetingid="#{id}"
 						)
 				.row
-					framework-participant(meetingid="#{id}")
+					framework-participant(
+						meetingid="#{id}"
+						on-create-complete="resetDefaults"
+					)
 		script.
 			Polymer("participant-rows", {
 				publish: {
@@ -34,6 +37,31 @@ block content
 				},
 				url: '/api/meetings/#{meetingId}/participants',
 				created: function () {
+					if (this.url.indexOf('#{meetingId}') > 0)
+						this.url = this.url.replace('#{meetingId}', this.meetingId);
+					this.participants = [];
+				},
+				parse: function (data) {
+					return _.defaults({
+						participants: this.participants
+					}, data);
+				}
+			})
+
+	polymer-element(
+		name="participant-resource"
+		extends="framework-resource"
+	)
+		script.
+			Polymer("participant-resource", {
+				publish: {
+					meetingId: ''
+				},
+				url: '/api/meetings/#{meetingId}/participants',
+				created: function () {
+					if (this.url.indexOf('#{meetingId}') > 0)
+						this.url = this.url.replace('#{meetingId}', this.meetingId);
+					alert('participants')
 					this.participants = [];
 				},
 				parse: function (data) {
@@ -213,8 +241,10 @@ block content
 
 			.row
 				participant-rows(
-					id="participants-control"
-					meetingid="#{id}")
+					id="participants"
+					meetingid="#{id}"
+					on-fetch-complete="populateParticipants"
+				)
 
 			.row
 				.col-md-10.col-md-offset-1
@@ -223,7 +253,12 @@ block content
 			.row
 				.col-md-10.col-md-offset-1
 					meeting-log-list(id="list")
-			meeting-log-resource(id="resource", on-query-complete="populateMeetingLogs")
+			meeting-log-resource(id="resource", on-fetch-complete="populateMeetingLogs")
+			//- participant-resource(
+			//- 	id="participants"
+			//- 	meetingid="#{id}"
+			//- 	on-query-complete="populateParticipants"
+			//- )
 		script.
 			Polymer("meeting-detail-app", {
 				publish: {
@@ -242,6 +277,9 @@ block content
 				initialize: function(){
 					var self = this;
 					self.$.resource.query({meeting_id: self.meetingId});
+					if (self.$.participants.url.indexOf('//') > 0) // This is a dirty hack
+						self.$.participants.url = self.$.participants.url.replace('//', '/' + self.$.participants.meetingId + '/');
+					self.$.participants.fetch();
 
 					var randomInt = function(min, max)
 					{
@@ -295,6 +333,13 @@ block content
 				populateMeetingLogs: function(e, sender, detail){
 					var self = this;
 					//self.$.list.logs = sender.data;
+				},
+
+				populateParticipants: function (e, sender, detail) {
+					console.log('e', e);
+					console.log('sender', sender);
+					console.log('detail', detail);
+					this.$.participants.participants = sender.data;
 				},
 
 				toggleStartClock: function(){
