@@ -29,16 +29,14 @@ block content
 				publish: {
 					meetingId: ''
 				},
-				url: '/api/meetings/' + this.meetingId + '/participants',
+				url: '/api/meetings/participants',
 				created: function () {
 					this.participants = [];
-					console.log(this.$.resource);
 				},
 				parse: function (data) {
 					return _.defaults({
-						this.participants,
-						data
-					});
+						participants: this.participants
+					}, data);
 				}
 			})
 

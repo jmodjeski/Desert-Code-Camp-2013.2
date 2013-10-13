@@ -17,7 +17,8 @@ var _ = require('underscore'),
 
   var put = function(repo, req, res, next){
     var id = req.url.split(/\//, 3)[2];
-    repo.update({id: id, data: req.body}, {}, function(err, result, next){
+    var query = { _id: id };
+    repo.update({query: query, data: req.body}, {}, function(err, result, next){
       res.send(err ? 500 : 201, err || result);
       next();
     })
