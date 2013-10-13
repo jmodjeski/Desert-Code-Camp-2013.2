@@ -70,12 +70,6 @@ var _ = require('underscore'),
         });
       }
     });
-
-    // var query = { _id: id };
-    // repo.update({query: query, data: req.body}, {}, function(err, result, next){
-    //   res.send(err ? 500 : 201, err || result);
-    //   next();
-    // })
   };
 
   var post = function(repo, req, res){
