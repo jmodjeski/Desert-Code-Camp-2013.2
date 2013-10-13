@@ -105,10 +105,30 @@ var _ = require('underscore'),
   }  
 
   var del = function(repo, req, res, next){
-    var id = req.url.split(/\//, 3)[2];
-    repo.remove(id, {}, function(err, result, next){
-      res.send(err ? 500 : 200);
-      next();
+    var urlParts = req.url.split(/\//);
+    var id = urlParts[2];
+    var rootModel = {};
+    findModel(repo, id, [], function (err, model) {
+      rootModel = model;
+      if (err) res.send(500, err);
+      else {
+        if (urlParts.length < 3) {
+          rootModel.remove({ _id: rootModel._id }, function (err) {
+            if (err) res.send(500, err);
+            else res.send(200);
+          });
+        } else {
+          findSubModel(rootModel, urlParts.slice(3, urlParts.length), function (err, model) {
+            if (err) res.send(500, err);
+            else {
+              model.remove({ _id: model._id }, function (err) {
+                if (err) res.send(500, err);
+                else res.send(200);
+              });
+            }
+          });
+        }
+      }
     })
   };
 
@@ -121,12 +141,12 @@ var _ = require('underscore'),
       {
         case 'GET':
           handler = function(){
-            get(db[segment], req, res, next);
+            get(db[segment], req, res);
           };
           break;
         case 'PUT':
           handler = function () {
-            put(db[segment], req, res, next);
+            put(db[segment], req, res);
           };
           break;
         case 'POST':
@@ -136,7 +156,7 @@ var _ = require('underscore'),
           break;
         case 'DELETE':
           handler = function () {
-            del(db[segment], req, res, next);
+            del(db[segment], req, res);
           };
           break;
       }
