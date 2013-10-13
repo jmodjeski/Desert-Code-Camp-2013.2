@@ -8,12 +8,14 @@ var _ = require('underscore'),
     var id = urlParts[2];
     var query = req.query || {};
     if(id) {
-      query = {_id: id};
+      repo.findById(id, function (err, model) {
+        res.send(err ? 500 : 200, err || model);
+      });
+    } else {
+      repo.find(query, function (err, model) {
+        res.send(err ? 500 : 200, err || model);
+      });
     }
-    repo.find(query, {}, function(err, result, next){
-      res.send(err ? 500 : 200, err || result);
-      next();
-    })
   };
 
   var put = function(repo, req, res, next){

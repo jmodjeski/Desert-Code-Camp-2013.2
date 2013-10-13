@@ -11,7 +11,7 @@ block head
 	link(rel="import", href="/elements/framework-datetime.html")
 
 block content
-	h1 Meeting #{id}
+	h1 Meeting #{_id}
 
 	polymer-element(
 		name="participant-rows"
@@ -307,5 +307,5 @@ block content
 				}
 			})
 
-	meeting-detail-app(meetingid="#{id}")
+	meeting-detail-app(meetingid="#{_id}")
 
