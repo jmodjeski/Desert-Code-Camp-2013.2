@@ -4,7 +4,8 @@ var _ = require('underscore'),
   url = require('url');
 
   var get = function(repo, req, res, next){
-    var id = url.parse(req.url).pathname.split(/\//, 3)[2];
+    var urlParts = url.parse(req.url).pathname.split(/\//);
+    var id = urlParts[2];
     var query = req.query || {};
     if(id) {
       query = {_id: id};
