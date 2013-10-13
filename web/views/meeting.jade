@@ -14,10 +14,23 @@ block content
 	h1 Meeting #{id}
 
 	polymer-element(name="participant-rows")
-		template(repeat="{{participants}}")
-			framework-participant
+		template
+			div
+				template(repeat="{{p in participants}}")
+					.row
+						framework-participant(participant="{{p}}")
+				.row
+					framework-participant
 		script.
-			Polymer("participant-rows")
+			Polymer("participant-rows", {
+				publish: {
+					meetingId: ''
+				},
+				created: function () {
+					this.participants = [];
+					console.log(this.$.resource);
+				}
+			})
 
 	polymer-element(name="meeting-log-resource", extends="framework-resource")
 		script.
@@ -188,11 +201,10 @@ block content
 					framework-clock(id="stop")
 
 			.row
-				participant-rows
+				participant-rows(
+					id="participants-control"
+					meetingid="#{id}")
 
-			.row
-				framework-participant(id="new_participant")
-	
 			.row
 				.col-md-10.col-md-offset-1
 					meeting-log-chart(id="chart", style="height: 400px;")

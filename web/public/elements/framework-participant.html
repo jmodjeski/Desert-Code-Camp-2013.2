@@ -1,12 +1,12 @@
 <polymer-element
 	name="framework-participant"
-	attributes="edit"
+	attributes="edit participant"
 	>
 	<script>
 		Polymer('framework-participant', {
 			created: function () {
 				this.participant = {
-					type: 'unknown',
+					type: 'participant name',
 					cost: 0.0,
 					count: 0
 				};
