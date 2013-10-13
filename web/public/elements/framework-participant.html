@@ -26,9 +26,10 @@
 					this.url = this.url.replace('#{meetingId}', this.meetingId);
 				}
 				console.log('this.participant', this.participant);
-				if (!this.participant.id) { // create
-					console.log('this', this.fetch);
+				if (!this.participant._id) { // create
 					this.create(this.participant);
+				} else {
+					this.update(this.participant._id, this.participant);
 				}
 				this.toggle(e);
 			},

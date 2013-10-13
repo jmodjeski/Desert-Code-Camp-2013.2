@@ -18,7 +18,7 @@ var _ = require('underscore'),
   var findSubModel = function (model, segments, callback) {
     if (segments.length === 1) {
       callback(undefined, model[segments[0]]);
-    } else {
+    } else if (model[segments[0]].findById) {
       model[segments[0]].findById(segments[1], function (err, m) {
         if (!err) {
           model = m;
@@ -30,6 +30,14 @@ var _ = require('underscore'),
           }
         }
       });
+    } else {
+      model = model[segments[0]].id(segments[1]);
+      if (segments.length > 2) {
+        segments = segments.slice(2, segments.length);
+        findSubModel(model, segments, callback);
+      } else {
+        callback(undefined, model);
+      }
     }
   }
 
@@ -44,15 +52,33 @@ var _ = require('underscore'),
   };
 
   var put = function(repo, req, res, next){
-    var id = req.url.split(/\//, 3)[2];
-    var query = { _id: id };
-    repo.update({query: query, data: req.body}, {}, function(err, result, next){
-      res.send(err ? 500 : 201, err || result);
-      next();
-    })
+    var urlParts = req.url.split(/\//);
+    var id = urlParts[2];
+    findModel(repo, id, [], function (err, model) {
+      var rootModel = model;
+      if (urlParts.length < 3) {
+        rootModel = _.extend(rootModel, req.body);
+        rootModel.save(function (err, updatedRoot, recordCount) {
+          res.send(err ? 500 : 200);
+        });
+      } else {
+        findSubModel(rootModel, urlParts.slice(3, urlParts.length), function (err, model) {
+          model = _.extend(model, req.body);
+          rootModel.save(function (err, updatedRoot, recordCount) {
+            res.send(err ? 500 : 200);
+          });
+        });
+      }
+    });
+
+    // var query = { _id: id };
+    // repo.update({query: query, data: req.body}, {}, function(err, result, next){
+    //   res.send(err ? 500 : 201, err || result);
+    //   next();
+    // })
   };
 
-  var post = function(repo, req, res, next){
+  var post = function(repo, req, res){
     var urlParts = url.parse(req.url).pathname.split(/\//);
     if (urlParts.length < 3) {
       repo.create(req.body, {}, function(err, result){
@@ -111,7 +137,7 @@ var _ = require('underscore'),
           break;
         case 'POST':
           handler = function () {
-            post(db[segment], req, res, next);
+            post(db[segment], req, res);
           };
           break;
         case 'DELETE':
