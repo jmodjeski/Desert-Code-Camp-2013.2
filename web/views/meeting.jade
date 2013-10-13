@@ -13,7 +13,10 @@ block head
 block content
 	h1 Meeting #{id}
 
-	polymer-element(name="participant-rows")
+	polymer-element(
+		name="participant-rows"
+		extends="framework-resource"
+	)
 		template
 			div
 				template(repeat="{{p in participants}}")
@@ -26,9 +29,16 @@ block content
 				publish: {
 					meetingId: ''
 				},
+				url: '/api/meetings/' + this.meetingId + '/participants',
 				created: function () {
 					this.participants = [];
 					console.log(this.$.resource);
+				},
+				parse: function (data) {
+					return _.defaults({
+						this.participants,
+						data
+					});
 				}
 			})
 

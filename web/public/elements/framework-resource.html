@@ -30,7 +30,18 @@
 					});
 				},
 				update: function(id, data){
-
+					var self = this;
+					$.ajax({
+						url: self.url + '/' + id,
+						method: 'PATCH',
+						data: data
+					}).done(function () {
+						self.async(function () {
+							self.fire('update-complete', {
+								data: data
+							});
+						});
+					});
 				},
 				remove: function(id){
 					var self = this;
@@ -48,7 +59,20 @@
 					});
 				},
 				fetch: function(id){
-
+					var self = this;
+					$.ajax({
+						url: self.url + '/' + id,
+						method: 'GET'
+					}).done(function (data, status, xhr) {
+						self.data = data.map(function (d) {
+							return self.parse(d);
+						});
+						self.async(function () {
+							self.fire('fetch-complete', {
+								data: self.data
+							});
+						});
+					});
 				},
 				query: function(query){
 					var self = this;

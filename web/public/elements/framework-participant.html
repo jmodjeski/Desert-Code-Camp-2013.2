@@ -1,9 +1,11 @@
 <polymer-element
 	name="framework-participant"
+	extends="framework-resource"
 	attributes="edit participant"
 	>
 	<script>
 		Polymer('framework-participant', {
+			url: '/api/participants'
 			created: function () {
 				this.participant = {
 					type: 'participant name',
@@ -11,6 +13,12 @@
 					count: 0
 				};
 				this.edit = false;
+			},
+			parse: function (data) {
+				return _.defaults({
+					this.participant,
+					data
+				});
 			},
 			toggle: function (e) {
 				this.edit = !this.edit;
