@@ -31,15 +31,16 @@ var _ = require('underscore'),
     var path = paths.shift();
     var child = model[path.segment];
     if(path.id) child = child.id(path.id);
-    if(paths.length != 0) findchild(err, paths, child, fn);
+    if(paths.length !== 0) findchild(err, paths, child, fn);
     else fn(err, child);
   };
 
   var finalHandler = function(res, blockResult){
-    return function(err, result){
+    return function(err, result, status, headers){
+      if (headers) res.set(headers);
       if(err) res.send(500, err);
-      else res.send(200, blockResult ? undefined : result);
-    }
+      else res.send(status || 200, blockResult ? undefined : result);
+    };
   };
 
   var get = function(repo, req, res, next){
@@ -49,7 +50,7 @@ var _ = require('underscore'),
 
     if(path.id) {
       repo.findById(path.id, function(err, model){
-        if(paths.length == 0) handler(err, model);
+        if(paths.length === 0) handler(err, model, 200);
         else findchild(err, paths, model, handler);
       });
     } else {
@@ -60,16 +61,16 @@ var _ = require('underscore'),
 
   var put = function(repo, req, res, next){
     var handler = finalHandler(res);
-    var paths = parseUrl(req)
+    var paths = parseUrl(req);
     var path = paths.shift();
 
     var save = function(parent) {
       return function(err, model){
-        if(err) handler(err)
+        if(err) handler(err);
         else {
           _.extend(model, req.body);
           parent.save(function(err){
-            handler(err, model);
+            handler(err, model, 200);
           });
         }
       };
@@ -77,33 +78,31 @@ var _ = require('underscore'),
 
     repo.findById(path.id, function(err, model){
       var fn = save(model);
-      if(paths.length == 0) fn(err, model);
+      if(paths.length === 0) fn(err, model);
       else findchild(err, paths, model, fn);
     });
   };
 
 
   var post = function(repo, req, res){
-    var errorHandler = finalHandler(res);
+    var handler = finalHandler(res);
     var paths = parseUrl(req);
     var path = paths.shift();
 
     var created = function(err, model){
         if(err) res.send(500, err);
         else {
-          res.set({
+          handler(err, model, 201, {
             'Location': appendUrl('/api' + req.url, model.id)
           });
-          res.send(201, model);
         }
     };
 
-    if(path.id)
-    {
+    if(path.id) {
       repo.findById(path.id, function(err, parent){
-        if(paths.length == 0) errorHandler(new Error("Invalid path to child model"));
+        if(paths.length === 0) handler(new Error("Invalid path to child model"));
         else findchild(err, paths, parent, function(err, set){
-          if(err) errorHandler(err);
+          if(err) handler(err);
           else {
             var model = set.create(req.body);
             set.push(model);
@@ -114,11 +113,9 @@ var _ = require('underscore'),
           }
         });
       });
-    }
-    else
-    {
+    } else {
       var model = new repo(req.body);
-      model.save(created); 
+      model.save(created);
     }
   };
 
@@ -136,11 +133,11 @@ var _ = require('underscore'),
           parent.save(handler);
         }
       };
-    }
+    };
 
     repo.findById(path.id, function(err, model){
       var fn = remove(model);
-      if(paths.length == 0) fn(err, model);
+      if(paths.length === 0) fn(err, model);
       else findchild(err, paths, model, fn);
     });
   };

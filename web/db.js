@@ -20,7 +20,7 @@ var meetingSchema = new Schema({
   participants: [new Schema({
     type: String,
     rate: Number,
-    count: Number 
+    count: Number
   }, defaultSchemaOptions)]
 }, defaultSchemaOptions);
 

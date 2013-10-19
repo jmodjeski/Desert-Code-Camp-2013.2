@@ -3,12 +3,12 @@
  * Module dependencies.
  */
 
-var express = require('express')
-  , routes = require('./routes')
-  , http = require('http')
-  , path = require('path')
-  , _ = require('underscore')
-  , api = require('./routes/api');
+var express = require('express'),
+    routes = require('./routes'),
+    http = require('http'),
+    path = require('path'),
+    _ = require('underscore'),
+    api = require('./routes/api');
 
 var app = express();
 
@@ -39,7 +39,7 @@ app.configure('development', function(){
 });
 
 // handle the api as a middleware
-app.use('/api/', api)
+app.use('/api/', api);
 
 // register pages
 app.get('/', routes.index);
