@@ -24,11 +24,11 @@ block content
 					.row
 						framework-participant(
 							participant="{{p}}"
-							meetingid="#{id}"
+							meetingid="#{meeting.id}"
 						)
 				.row
 					framework-participant(
-						meetingid="#{id}"
+						meetingid="#{meeting.id}"
 						on-create-complete="resetDefaults"
 					)
 		script.
@@ -243,7 +243,7 @@ block content
 			.row
 				participant-rows(
 					id="participants"
-					meetingid="#{id}"
+					meetingid="#{meeting.id}"
 					on-fetch-complete="populateParticipants"
 				)
 

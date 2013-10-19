@@ -11,6 +11,7 @@
     "jade": "*",
     "mongoose": "latest",
     "underscore": "~1.5.1",
-    "deferred": "~0.6.5"
+    "deferred": "~0.6.5",
+    "lodash": "latest"
   }
 }
