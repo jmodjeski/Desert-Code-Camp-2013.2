@@ -28,8 +28,9 @@ block content
 						)
 				.row
 					framework-participant(
+						id="newParticipant"
 						meetingid="#{meeting.id}"
-						on-create-complete="resetDefaults"
+						on-add-complete="resetDefaults"
 					)
 		script.
 			Polymer("participant-rows", {
@@ -46,6 +47,10 @@ block content
 					return _.defaults({
 						participants: this.participants
 					}, data);
+				},
+				resetDefaults: function (e, data) {
+					this.participants.push(data.data);
+					this.$.newParticipant.resetDefaults();
 				}
 			})
 
@@ -337,9 +342,6 @@ block content
 				},
 
 				populateParticipants: function (e, sender, detail) {
-					console.log('e', e);
-					console.log('sender', sender);
-					console.log('detail', detail);
 					this.$.participants.participants = sender.data;
 				},
 
