@@ -49,29 +49,6 @@ block content
 					this.$.newParticipant.resetDefaults();
 				}
 			})
-
-	polymer-element(
-		name="participant-resource"
-		extends="framework-resource"
-	)
-		script.
-			Polymer("participant-resource", {
-				publish: {
-					meetingId: ''
-				},
-				url: '/api/meetings/#{meetingId}/participants',
-				created: function () {
-					if (this.url.indexOf('#{meetingId}') > 0)
-						this.url = this.url.replace('#{meetingId}', this.meetingId);
-					alert('participants')
-					this.participants = [];
-				},
-				parse: function (data) {
-					return _.defaults({
-						participants: this.participants
-					}, data);
-				}
-			})
 	
 	polymer-element(name="meeting-detail-app")
 		template
