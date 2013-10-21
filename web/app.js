@@ -44,8 +44,7 @@ app.use('/api/', api);
 // register pages
 app.get('/', routes.index);
 app.get('/meeting/:id', routes.meeting);
-
-
+app.get('/analytics/:id', routes.analytics);
 
 
 http.createServer(app).listen(app.get('port'), function() {

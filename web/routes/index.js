@@ -7,3 +7,4 @@ exports.index = function(req, res){
 };
 
 exports.meeting = require("./meeting");
+exports.analytics = require("./analytics");
