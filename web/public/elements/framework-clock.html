@@ -1,15 +1,17 @@
 
 <!-- Derived from http://commons.wikimedia.org/wiki/File:Animated_analog_SVG_clock.svg -->
 
-<polymer-element name="framework-clock" attributes="time">
+<polymer-element name="framework-clock">
 	<script type="text/javascript">
 		(function(){ 
 			Polymer('framework-clock', {
-				time: new Date(),
 				
 				created: function(){
 					var self = this;
+					self.time = new Date();
+					self.isRunning = false;
 					self.setClock();
+					self.$.clock.impl.pauseAnimations();
 				},
 
 				toggle: function()
@@ -38,6 +40,8 @@
 						clock.setCurrentTime(clock.getCurrentTime() + pausedTime);
 						clock.unpauseAnimations();
 					}
+
+					self.isRunning = true;
 				},
 
 				stop: function(){
@@ -51,10 +55,13 @@
 						clock.pauseAnimations();
 						self.time = new Date();
 					}
+
+					self.isRunning = false;
 				},
 
-				setClock: function() {
+				setClock: function(newTime) {
 					var self = this;
+					if (newTime) self.time = newTime;
 					var d = self.time;
 					// Get current seconds.
 					var s = d.getSeconds();
@@ -72,6 +79,11 @@
 					// Rotate the hour clockhand to the current hour.
 					self.$.Hour.setAttribute("transform", "rotate(" + (h * 30) + ", 256, 256)");
 					self.$.HourShadow.setAttribute("transform", "rotate(" + (h * 30) + ", 255, 257)");
+				},
+
+				getElapsedTime: function (startTime) {
+					var startMoment = moment(this.time);
+					return moment.duration(startMoment.diff(startTime)).asSeconds();
 				}
 			});
 		})();
