@@ -66,9 +66,13 @@
 						url: id ? self.url + '/' + id : self.url,
 						method: 'GET'
 					}).done(function (data, status, xhr) {
-						self.data = data.map(function (d) {
-							return self.parse(d);
-						});
+						if (data.map) {
+							self.data = data.map(function (d) {
+								return self.parse(d);
+							});
+						} else {
+							self.data = self.parse(data);
+						}
 						self.async(function () {
 							self.fire('fetch-complete', {
 								data: self.data

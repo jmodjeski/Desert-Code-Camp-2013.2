@@ -50,7 +50,7 @@ block content
 				}
 			})
 	
-	polymer-element(name="meeting-detail-app")
+	polymer-element(name="meeting-detail-app", extends="framework-resource", on-fetch-complete="populateMeeting")
 		template
 			.row
 				.col-md-4.col-md-offset-1
@@ -64,7 +64,6 @@ block content
 				participant-rows(
 					id="participants"
 					meetingid="#{meeting.id}"
-					on-fetch-complete="populateParticipants"
 				)
 
 		script.
@@ -72,6 +71,8 @@ block content
 				publish: {
 					meetingId: ''
 				},
+
+				url: '/api/meetings',
 
 				created:function(){
 					var self = this;
@@ -86,11 +87,15 @@ block content
 					var self = this;
 					if (self.$.participants.url.indexOf('//') > 0) // This is a dirty hack
 						self.$.participants.url = self.$.participants.url.replace('//', '/' + self.$.participants.meetingId + '/');
-					self.$.participants.fetch();
+					self.meeting = {};
+					self.fetch(self.meetingId);
 				},
 
-				populateParticipants: function (e, sender, detail) {
-					this.$.participants.participants = sender.data;
+				populateMeeting: function (e, sender, detail) {
+					if (sender) {
+						this.meeting = sender.data || {};
+						this.$.participants.participants = this.meeting.participants;
+					}
 				},
 
 				startMeeting: function () {
@@ -134,5 +139,5 @@ block content
 				}
 			})
 
-	meeting-detail-app(meetingid="#{id}")
+	meeting-detail-app(meetingId="#{meeting.id}")
 

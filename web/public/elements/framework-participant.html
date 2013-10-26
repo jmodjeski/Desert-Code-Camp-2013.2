@@ -25,7 +25,6 @@
 				if (this.url.indexOf('#{meetingId}') > 0) {
 					this.url = this.url.replace('#{meetingId}', this.meetingId);
 				}
-				console.log('this.participant', this.participant);
 				if (!this.participant._id) { // create
 					this.create(this.participant);
 				} else {
@@ -40,8 +39,6 @@
 					count: 0
 				};
 				this.edit = false;
-			},
-			editChanged: function (oldVal) {
 			}
 		});
 	</script>
