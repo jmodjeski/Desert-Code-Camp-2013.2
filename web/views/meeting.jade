@@ -110,7 +110,7 @@ block content
 					if (sender) {
 						this.meeting = sender.data || {};
 						this.$.participants.participants = this.meeting.participants;
-						if (!moment(this.meeting.startTime).isSame(this.defaultTime)) {
+						if (this.meeting.startTime && !moment(this.meeting.startTime).isSame(this.defaultTime)) {
 							this.runClock();
 						}
 					}
