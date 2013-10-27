@@ -50,19 +50,20 @@ block content
 				}
 			})
 	
-	polymer-element(name="meeting-detail-app")
+	polymer-element(name="meeting-detail-app", extends="framework-resource", on-fetch-complete="populateMeeting")
 		template
 			.row
 				.col-md-4.col-md-offset-1
 					framework-clock(id="start")
 				.col-md-4.col-md-offset-2
 					framework-clock(id="stop")
-
+			.row
+				button.btn(id="startMeeting", on-click="startMeeting") Start Meeting
+				button.btn(id="stopMeeting", on-click="stopMeeting", disabled="disabled") End Meeting
 			.row
 				participant-rows(
 					id="participants"
 					meetingid="#{meeting.id}"
-					on-fetch-complete="populateParticipants"
 				)
 
 		script.
@@ -70,6 +71,8 @@ block content
 				publish: {
 					meetingId: ''
 				},
+
+				url: '/api/meetings',
 
 				created:function(){
 					var self = this;
@@ -84,23 +87,57 @@ block content
 					var self = this;
 					if (self.$.participants.url.indexOf('//') > 0) // This is a dirty hack
 						self.$.participants.url = self.$.participants.url.replace('//', '/' + self.$.participants.meetingId + '/');
-					self.$.participants.fetch();
+					self.meeting = {};
+					self.fetch(self.meetingId);
 				},
 
-				populateParticipants: function (e, sender, detail) {
-					this.$.participants.participants = sender.data;
+				populateMeeting: function (e, sender, detail) {
+					if (sender) {
+						this.meeting = sender.data || {};
+						this.$.participants.participants = this.meeting.participants;
+					}
 				},
 
-				toggleStartClock: function(){
-					var self = this;
-					self.$.start.toggle();
+				startMeeting: function () {
+					var startClock = this.$.start,
+						stopClock = this.$.stop;
+					if (!stopClock.isRunning) {
+						startClock.setClock(new Date());
+						stopClock.run();
+						this.toggleMeetingButtons();
+					}
 				},
 
-				toggleStopClock: function(){
-					var self = this;
-					self.$.stop.toggle();
+				stopMeeting: function () {
+					var startClock = this.$.start,
+						stopClock = this.$.stop;
+					if (stopClock.isRunning) {
+						stopClock.stop();
+						// record metrics here
+						console.log(stopClock.getElapsedTime(startClock.time));
+						startClock.setClock(new Date());
+						this.toggleMeetingButtons();
+					}
+				},
+
+				toggleMeetingButtons: function () {
+					var startMeetingButton = this.$.startMeeting,
+						stopMeetingButton = this.$.stopMeeting,
+						attr = document.createAttribute('disabled');
+					attr.value = 'disabled';
+					if (startMeetingButton.hasAttribute('disabled'))
+						startMeetingButton.removeAttribute('disabled');
+					else {
+						startMeetingButton.setAttributeNode(attr);
+					}
+
+					if (stopMeetingButton.hasAttribute('disabled'))
+						stopMeetingButton.removeAttribute('disabled');
+					else {
+						stopMeetingButton.setAttributeNode(attr);
+					}
 				}
 			})
 
-	meeting-detail-app(meetingid="#{id}")
+	meeting-detail-app(meetingId="#{meeting.id}")
 
