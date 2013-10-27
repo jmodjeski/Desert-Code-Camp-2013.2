@@ -74,6 +74,17 @@ block content
 
 				url: '/api/meetings',
 
+				meetingUrl: '/api/meetings',
+
+				defaultMeetingLog: {
+					startTime: new Date(),
+					stopTime: new Date(),
+					totalTime: 0,
+					cost: 0.0,
+					tags: [],
+					participants: []
+				},
+
 				created:function(){
 					var self = this;
 				},
@@ -113,11 +124,38 @@ block content
 						stopClock = this.$.stop;
 					if (stopClock.isRunning) {
 						stopClock.stop();
-						// record metrics here
-						console.log(stopClock.getElapsedTime(startClock.time));
+						var log = this.createMeetingLog(startClock.time, stopClock.getElapsedTime(startClock.time));
+						this.meeting.logs.push(log);
+						this.update(this.meeting.id, this.meeting);
 						startClock.setClock(new Date());
 						this.toggleMeetingButtons();
 					}
+				},
+
+				createMeetingLog: function (startTime, duration) {
+					var endTime = moment(startTime).add('s', duration).toDate(),
+						log = this.defaultMeetingLog,
+						cost = 0.0;
+
+					log.startTime = startTime;
+					log.totalTime = duration;
+					log.stopTime = endTime;
+					log.meeting = this.meeting.id;
+					log.participants = this.meeting.participants;
+
+					this.meeting.participants.forEach(function (x) {
+						log.participants.push({
+							type: x.type,
+							rate: x.rate, 
+							count: x.count
+						});
+						var r = (x.rate * x.count) * moment.duration(log.totalTime, 's').asHours();
+						cost += Math.round(r * 100) * 0.01;
+					});
+
+					log.cost = cost;
+
+					return log;
 				},
 
 				toggleMeetingButtons: function () {

@@ -37,6 +37,7 @@ var _ = require('underscore'),
 
   var finalHandler = function(res, blockResult){
     return function(err, result, status, headers){
+      console.log(err);
       if (headers) res.set(headers);
       if(err) res.send(500, err);
       else res.send(status || 200, blockResult ? undefined : result);
