@@ -78,6 +78,8 @@ block content
 
 				meetingLogUrl: '/api/meetingslog',
 
+				defaultTime: moment('1-1-2001').toDate(),
+
 				defaultMeetingLog: {
 					startTime: new Date(),
 					stopTime: new Date(),
@@ -108,16 +110,27 @@ block content
 					if (sender) {
 						this.meeting = sender.data || {};
 						this.$.participants.participants = this.meeting.participants;
+						if (!moment(this.meeting.startTime).isSame(this.defaultTime)) {
+							this.runClock();
+						}
 					}
+				},
+
+				runClock: function () {
+					this.$.start.setClock(moment(this.meeting.startTime).toDate());
+					this.$.stop.run();
+					this.toggleMeetingButtons();
 				},
 
 				startMeeting: function () {
 					var startClock = this.$.start,
 						stopClock = this.$.stop;
 					if (!stopClock.isRunning) {
-						startClock.setClock(new Date());
-						stopClock.run();
-						this.toggleMeetingButtons();
+						if (moment(this.meeting.startTime).isSame(this.defaultTime)) {
+							this.meeting.startTime = new Date();
+							this.update(this.meeting.id, this.meeting);
+						}
+						this.runClock();
 					}
 				},
 
@@ -131,6 +144,8 @@ block content
 						this.create(log);
 						this.url = this.meetingUrl;
 						startClock.setClock(new Date());
+						this.meeting.startTime = this.defaultTime;
+						this.update(this.meeting.id, this.meeting);
 						this.toggleMeetingButtons();
 					}
 				},

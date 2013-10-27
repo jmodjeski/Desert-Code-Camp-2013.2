@@ -22,6 +22,7 @@ var defaultSchemaOptions = {
 
 var meetingSchema = new Schema({
   title: String,
+  startTime: Date,
   participants: [new Schema({
     type: String,
     rate: Number,
