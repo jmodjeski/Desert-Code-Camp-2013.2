@@ -76,6 +76,8 @@ block content
 
 				meetingUrl: '/api/meetings',
 
+				meetingLogUrl: '/api/meetingslog',
+
 				defaultMeetingLog: {
 					startTime: new Date(),
 					stopTime: new Date(),
@@ -125,8 +127,9 @@ block content
 					if (stopClock.isRunning) {
 						stopClock.stop();
 						var log = this.createMeetingLog(startClock.time, stopClock.getElapsedTime(startClock.time));
-						this.meeting.logs.push(log);
-						this.update(this.meeting.id, this.meeting);
+						this.url = this.meetingLogUrl;
+						this.create(log);
+						this.url = this.meetingUrl;
 						startClock.setClock(new Date());
 						this.toggleMeetingButtons();
 					}
@@ -140,16 +143,16 @@ block content
 					log.startTime = startTime;
 					log.totalTime = duration;
 					log.stopTime = endTime;
-					log.meeting = this.meeting.id;
-					log.participants = this.meeting.participants;
+					log.meetingId = this.meeting.id;
 
 					this.meeting.participants.forEach(function (x) {
+						var r = Math.round(((x.rate * x.count) * moment.duration(log.totalTime, 's').asHours()) * 100) * 0.01;
 						log.participants.push({
 							type: x.type,
 							rate: x.rate, 
-							count: x.count
+							count: x.count,
+							totalCost: r
 						});
-						var r = (x.rate * x.count) * moment.duration(log.totalTime, 's').asHours();
 						cost += Math.round(r * 100) * 0.01;
 					});
 

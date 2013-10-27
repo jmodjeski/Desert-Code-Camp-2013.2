@@ -22,12 +22,6 @@ var defaultSchemaOptions = {
 
 var meetingSchema = new Schema({
   title: String,
-  logs: [ 
-    { 
-      type: Schema.Types.ObjectId, 
-      ref: collectionNames.meetingLogs 
-    }
-  ],
   participants: [new Schema({
     type: String,
     rate: Number,
@@ -36,10 +30,7 @@ var meetingSchema = new Schema({
 }, defaultSchemaOptions);
 
 var meetingLogSchema = new Schema({
-  meeting: { 
-    type: Schema.Types.ObjectId, 
-    ref: collectionNames.meetings 
-  },
+  meetingId: Schema.Types.ObjectId,
   startTime: Date,
   stopTime: Date,
   totalTime: Number,
