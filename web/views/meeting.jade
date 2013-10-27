@@ -6,7 +6,9 @@ block head
 	link(rel="import", href="/elements/framework-resource.html")
 
 block content
-	h1 #{meeting.title} 
+	h1 
+		.glyphicon.glyphicon-time
+		span  #{meeting.title} 
 	h6 (#{meeting.id}) | 
 		a(href="/analytics/#{meeting.id}") analytics
 

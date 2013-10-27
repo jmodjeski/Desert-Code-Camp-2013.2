@@ -16,9 +16,12 @@ block content
 	polymer-element(name="meetings-add")
 		template
 			form.form-inline(role="form", id="addForm", on-submit="formSubmit")
-				.form-group
-					input.form-control(type="text",value="{{title}}")
-				button.btn.btn-default Add Meeting
+				.form-group.col-md-10
+					.input-group
+						span.input-group-addon
+							.glyphicon.glyphicon-time
+						input.form-control(type="text",value="{{title}}")
+				button.btn.btn-default.col-md-2 Add Meeting
 		script.
 			Polymer("meetings-add", {
 				title: "",
@@ -92,7 +95,9 @@ block content
 					template(repeat="{{meeting in meetings}}")
 						tr(on-click="handleRowSelect")
 							td
-								a(class="default-action", href="/meeting/{{meeting._id}}") {{meeting.title}}
+								a(class="default-action", href="/meeting/{{meeting._id}}") 
+									span.glyphicon.glyphicon-time 
+									span  {{meeting.title}}
 							td
 								framework-confirm-removal(class="controls", on-remove="removeItem", data="{{meeting}}")
 					

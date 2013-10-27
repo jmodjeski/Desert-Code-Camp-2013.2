@@ -53,39 +53,55 @@
 			}
 		</style>
 		<div class="wrapper" on-click="toggle">
-			<template if="{{!edit}}">
-				<span class="span2">{{participant.type}}</span>
-				<span class="span1">{{participant.rate}}</span>
-				<span class="span1">{{participant.count}}</span>
-			</template>
-			<template if="{{edit}}">
-				<span class="span2">
-					<input 
-						placeholder="{{participant.type}}" 
-						value="{{participant.type}}" 
-						on-click="killPropagation"
-					/>
-				</span>
-				<span class="span1">
-					<input 
-						placeholder="{{participant.rate}}"
-						value="{{participant.rate}}"
-						on-click="killPropagation"
-					/>
-				</span>
-				<span class="span1">
-					<input 
-						type="number"
-						placeholder="{{participant.count}}"
-						value="{{participant.count}}"
-						on-click="killPropagation"
-					/>
-			</span>
-			<span>
-				<button class="btn btn-primary" on-click="save">Save</button>
-				<button class="btn">Cancel</button>
-			</span>
-		</template>
+			<div class="row">
+				<template if="{{!edit}}">
+					<span class="col-md-4">{{participant.type}}</span>
+					<span class="col-md-3">$ {{participant.rate}}</span>
+					<span class="col-md-3">x{{participant.count}}</span>
+				</template>
+				<template if="{{edit}}">
+					<span class="col-md-4">
+						<div class="input-group">
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-user"></span>
+							</span>
+							<input 
+								class="form-control"
+								placeholder="{{participant.type}}" 
+								value="{{participant.type}}" 
+								on-click="killPropagation"
+							/>
+						</div>
+					</span>
+					<span class="col-md-3">
+						<div class="input-group">
+							<span class="input-group-addon">$</span>
+							<input 
+								class="form-control"
+								placeholder="{{participant.rate}}"
+								value="{{participant.rate}}"
+								on-click="killPropagation"
+							/>
+						</div>
+					</span>
+					<span class="col-md-3">
+						<div class="input-group">
+							<span class="input-group-addon">#</span>
+							<input 
+								class="form-control"
+								type="number"
+								placeholder="{{participant.count}}"
+								value="{{participant.count}}"
+								on-click="killPropagation"
+							/>
+						</div>
+					</span>
+					<span class="col-md-2">
+						<button class="btn btn-primary" on-click="save">Save</button>
+						<button class="btn">Cancel</button>
+					</span>
+				</template>
+			</div>
 		</div>
 	</template>
 </polymer-element>
