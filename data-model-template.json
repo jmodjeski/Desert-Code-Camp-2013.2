@@ -1,3 +1,5 @@
+
+// meeting object
 {
 	Title:,
 	Participants: [
@@ -5,10 +7,15 @@
 			Type:,
 			Rate:,
 			Count:
-		}
+		},
 	],	
 
-	Log: [{
+	Logs: [ /* foreign keys */ ]
+}
+
+// log object
+{
+		MeetingId: /* foreign key */
 		StartTime:,
 		StopTime:,
 		TotalTime:,
@@ -24,6 +31,4 @@
 			}
 		]
 
-	}]
-
-}
+	}
