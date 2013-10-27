@@ -2,24 +2,24 @@ doctype 5
 html
   head
     title= title
-    //- link(rel="stylesheet", href="/bower_components/bootstrap/dist/css/bootstrap.min.css")
-    //- link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel="stylesheet", href="/bower_components/bootstrap/dist/css/bootstrap.min.css")
+    link(rel='stylesheet', href='/stylesheets/style.css')
     
     script(type='text/javascript', src='/bower_components/polymer/polymer.min.js')
     script(type='text/javascript', src="/bower_components/jquery/jquery.min.js")
-    //- script(type='text/javascript', src="/bower_components/bootstrap/dist/js/bootstrap.min.js")
+    script(type='text/javascript', src="/bower_components/bootstrap/dist/js/bootstrap.min.js")
     script(type='text/javascript', src="/bower_components/lodash/dist/lodash.min.js")
     script(type='text/javascript', src='/bower_components/momentjs/min/moment.min.js')
 
 
     block head
 
-  //- nav(class="navbar navbar-default",role="navigation")
-  //-   .navbar-header
-  //-     a.navbar-brand(href="/") #{title}
+  nav(class="navbar navbar-default",role="navigation")
+    .navbar-header
+      a.navbar-brand(href="/") #{title}
 
-  //- .container
+  .container
     block content
     block scripts
 
-  block content
+ 
