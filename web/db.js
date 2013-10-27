@@ -2,7 +2,7 @@ var url = require('./config').mongodb.url,
   mongoose = require('mongoose'),
   Schema = require('mongoose').Schema;
 
-var collectionNames : {
+var collectionNames = {
   meetings: 'Meetings',
   meetingLogs: 'MeetingLogs'
 };
@@ -55,7 +55,7 @@ var meetingLogSchema = new Schema({
 
 mongoose.connect(url);
 var Meetings = mongoose.model(collectionNames.meetings, meetingSchema);
-var MeetingsLog = mongoose.model(collecitonNames.meetingLogs, meetingLogSchema);
+var MeetingsLog = mongoose.model(collectionNames.meetingLogs, meetingLogSchema);
 
 // create the repositories
 exports = module.exports = {
