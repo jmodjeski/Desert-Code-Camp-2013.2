@@ -1,21 +1,39 @@
 
 <polymer-element name="framework-datetime" attributes="datetime" >
 	<template>
-		<time datetime="{{datetime}}">
+		<time datetime="{{datetime}}" title="{{datetime}}">
 			{{formatted}}
 		</time>
 	</template>
 	<script>
 	Polymer("framework-datetime", {
+		format: 'MMMM Do, YYYY h:mm A',
 		
 		datetimeChanged: function(){
 			var self = this;
 			self.moment = moment(self.datetime);
-			self.formatted = self.moment.format("MMMM Do YYYY HH:mm A");
+			self.formatted = self.moment.format(self.format);
 		}
 	});
 	</script>
 </polymer-element>
+
+<polymer-element name="framework-date" extends="framework-datetime">
+	<script>
+	Polymer("framework-date", {
+		format: "MMMM Do YYYY"
+	});
+	</script>
+</polymer-element>
+
+<polymer-element name="framework-time" extends="framework-datetime">
+	<script>
+	Polymer("framework-time", {
+		format: "h:mm A"
+	});
+	</script>
+</polymer-element>
+
 
 <polymer-element name="framework-datetime-duration" attributes="begin, end" >
 	<template>

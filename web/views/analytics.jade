@@ -8,11 +8,9 @@ block head
   script(type="text/javascript", src="/bower_components/momentjs/moment.js")
 
   link(rel="stylesheet", href="/bower_components/rickshaw/rickshaw.css")
-  //- link(rel="import", href="/elements/framework-clock.html")
-  //- link(rel="import", href="/elements/framework-participant.html")
-  //- link(rel="import", href="/elements/framework-highchart.html")
   link(rel="import", href="/elements/framework-resource.html")
   link(rel="import", href="/elements/framework-datetime.html")
+  link(rel="import", href="/elements/framework-currency.html")
 
 block content
   h1 
@@ -45,21 +43,25 @@ block content
     template
       table.table.table-stripted
         thead
+          th Date
           th Start
           th End
           th Duration
-          th Cost
+          th
+            span.pull-right Cost
         tbody
           template(repeat="{{log in logs}}")
             tr
+              td
+                framework-date(datetime="{{log.startTime}}")
               td 
-                framework-datetime(datetime="{{log.startTime}}")
+                framework-time(datetime="{{log.startTime}}")
               td 
-                framework-datetime(datetime="{{log.stopTime}}")
+                framework-time(datetime="{{log.stopTime}}")
               td 
                 framework-datetime-duration(begin="{{log.startTime}}", end="{{log.stopTime}}")
               td 
-                .pull-right $ {{ log.cost }}
+                framework-currency(value="{{ log.cost }}")
     script.
       Polymer("meeting-log-list", {
         logs: [],
@@ -72,6 +74,7 @@ block content
   polymer-element(name="meetings-chart")
     style.
       #chart_container {
+        margin-top: 20px;
         position: relative;
       }
       #chart {
@@ -97,6 +100,12 @@ block content
     template
       .row
         .col-md-10
+          select#by(value="{{by}}")
+            option(value="year") Year
+            option(value="month") Month
+            option(value="day") Day
+      .row
+        .col-md-10
           #chart_container
             #y_axis
             #chart
@@ -106,11 +115,21 @@ block content
               #legend
     script.
       Polymer("meetings-chart", {
+        by: 'year',
+        dateFormats: {
+          year: 'YYYY',
+          month: 'YYYY-MMM',
+          day: 'YYYY-MMM-DD'
+        },
 
         created: function(){
           var self = this;
-
           self.palette = new Rickshaw.Color.Palette({ scheme: 'classic9' });
+        },
+
+        byChanged: function(){
+          var self = this;
+          self.refreshChartData();
         },
 
         initializeChart: function(series)
@@ -119,8 +138,7 @@ block content
 
           var graph = self.graph = new Rickshaw.Graph({
             element: self.$.chart,
-            interpolation: 'step-after',
-            renderer: 'area',
+            renderer: 'bar',
             height: 300,
             width: 800,
             series: series
@@ -131,10 +149,6 @@ block content
             orientation: 'left',
             tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
             element: self.$.y_axis,
-          });
-
-          var xAxis = self.x_axis = new Rickshaw.Graph.Axis.Time({
-              graph: graph
           });
 
           var legend = self.legend = new Rickshaw.Graph.Legend( {
@@ -153,9 +167,12 @@ block content
 
           var hoverDetail = new Rickshaw.Graph.HoverDetail( {
               graph: graph,
+              xFormatter: function(x){
+                return moment.unix(x).format(self.dateFormats[self.by]);
+              },
               formatter: function(series, x, y){ 
                 return "<div>" + series.name + "</div>"
-                  + "<div>$ " + y + "</div>"; 
+                  + "<div>$ " + y.toFixed(2) + "</div>"; 
               }
           } );
 
@@ -170,11 +187,29 @@ block content
         refreshChartData: function(){
           var self = this;
           var by = self.by;
-          var grouped = _.chain(self.data)
+          var series = self.getChartSeries();
+
+          if(self.graph) {
+            series.forEach(function(s){
+              console.log(s);
+              var d = _.find(self.graph.series, function(d){ return d.name == s.name; });
+              console.log(d);
+              d.data = s.data;
+            });
+            self.graph.update();
+          }
+          else {
+            self.initializeChart(series);
+          }
+        },
+
+        getChartSeries: function(){
+          var self = this;
+          var series = _.chain(self.data)
             .map(function(x){ 
               return _.map(x.participants, function(p){
                 return {
-                  startTime: x.startTime, 
+                  date: moment(x.startTime).startOf(self.by).toDate(), 
                   type: p.type, 
                   cost: p.totalCost
                 };
@@ -182,28 +217,28 @@ block content
             })
             .flatten()
             .groupBy('type')
+            .map(function(v, k){
+              return {
+                name: k,
+                color: self.palette.color(),
+                data: _.chain(v)
+                  .groupBy("date")
+                  .map(function(v, k){
+                    return {
+                      x: moment(k).unix(),
+                      y: _.reduce(v, function(result, item){
+                        return result + item.cost;
+                      }, 0)
+                    }
+                  })
+                  .flatten()
+                  .value()
+              };
+            })
             .value();
 
-          var series = _.map(grouped, function(v, k){
-            return {
-              name: k,
-              color: self.palette.color(),
-              data: _.map(v, function(d){
-                  return {
-                    x: moment(d.startTime).unix(),
-                    y: d.cost
-                  };
-                })
-            };
-          });
-          console.log(series);
-          if(self.graph) {
-            self.graph.series = series;
-            self.graph.update();
-          }
-          else {
-            self.initializeChart(series);
-          }
+          console.log("get chart series", series);
+          return series;
         }
       })
 
@@ -237,60 +272,14 @@ block content
         initialize: function(){
           var self = this;
           self.$.resource.query({meetingId: self.meetingId});
-
-          //- var randomInt = function(min, max)
-          //- {
-          //-   return Math.floor(Math.random() * (max - min) + min);
-          //- }
-
-          //- // mock log data
-          //- for(var i = 0 ; i < 10; i++)
-          //- {
-          //-   var start = moment().add("d", i);
-          //-   var end = moment().add("d", i).add({hours: randomInt(0,3), minutes:randomInt(5, 55)});
-          //-   var sample = {
-          //-     startTime: start.toDate(),
-          //-     endTime: end.toDate(),
-          //-     totalTime: moment.duration(end.diff(start)).asSeconds(),
-          //-     cost: 0,
-          //-     tags: [
-          //-         'planning'
-          //-     ],
-          //-     participants: [
-          //-       {
-          //-         type: 'Developer',
-          //-         rate: randomInt(100, 150),
-          //-         count: randomInt(1,5),
-          //-         totalCost: 0,
-          //-       },
-          //-       {
-          //-         type: 'QA',
-          //-         rate: randomInt(100, 150),
-          //-         count: randomInt(1,3),
-          //-         totalCost: 0
-          //-       },
-          //-       {
-          //-         type: 'Offshore',
-          //-         rate: randomInt(75, 100),
-          //-         count: randomInt(1, 8),
-          //-         totalCost: 0
-          //-       }
-          //-     ]
-          //-   };
-          //-   sample.participants.forEach(function(x){
-          //-     var r = (x.rate * x.count) * moment.duration(sample.totalTime, "s").asHours();
-          //-     x.totalCost = Math.round(r * 100) * 0.01;
-          //-     sample.cost =  sample.cost + x.totalCost;
-          //-   });
-          //-   self.$.list.logs.push(sample);
-          //- }
-          //- self.$.chart.data = self.$.list.logs;
         },
 
         populateMeetingLogs: function(e, sender, detail){
           var self = this;
-          self.$.list.logs = sender.data;
-          self.$.chart.data = sender.data;
+          if(sender.data.length) {
+            self.$.list.logs = sender.data;
+            self.$.chart.data = sender.data;
+          }
         },
       })
 

@@ -1,0 +1,20 @@
+
+<polymer-element name="framework-currency" attributes="value" >
+  <template>
+    <currency actual="{{value}}" title="{{value}}">
+      $ <span class="pull-right">{{formatted}}</span>
+    </currency>
+  </template>
+  <script>
+  Polymer("framework-currency", {
+    publish: {
+      value: 0.0
+    },
+    
+    valueChanged: function(){
+      var self = this;
+      self.formatted = this.value.toFixed(2);
+    }
+  });
+  </script>
+</polymer-element>
