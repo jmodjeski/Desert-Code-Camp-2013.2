@@ -1,320 +1,299 @@
 extends layout
 
 block head
+  script(
+    src="http://d3js.org/d3.v3.min.js"
+    charset="utf-8")
+  script(type="text/javascript", src="/bower_components/rickshaw/rickshaw.js")
   script(type="text/javascript", src="/bower_components/momentjs/moment.js")
-  script(type="text/javascript", src="/bower_components/highcharts/highcharts.src.js")
-  script(type="text/javascript", src="/bower_components/highcharts/highcharts-more.src.js")
-  script(type="text/javascript", src="/bower_components/highcharts/adapters/standalone-framework.js")
-  
-  link(rel="import", href="/elements/framework-clock.html")
-  link(rel="import", href="/elements/framework-participant.html")
-  link(rel="import", href="/elements/framework-highchart.html")
+
+  link(rel="stylesheet", href="/bower_components/rickshaw/rickshaw.css")
+  //- link(rel="import", href="/elements/framework-clock.html")
+  //- link(rel="import", href="/elements/framework-participant.html")
+  //- link(rel="import", href="/elements/framework-highchart.html")
   link(rel="import", href="/elements/framework-resource.html")
   link(rel="import", href="/elements/framework-datetime.html")
 
 block content
-  h1 #{meeting.title} 
+  h1 
+    .glyphicon.glyphicon-time
+    span  #{meeting.title} 
   h6 (#{meeting.id}) | 
     a(href="/meeting/#{meeting.id}") detail
 
-  //- polymer-element(name="meeting-log-resource", extends="framework-resource")
-  //-   script.
-  //-     Polymer("meeting-log-resource",{
-  //-       url: '/api/meetingslog',
-  //-       data: [],
-  //-       parse: function(d){
-  //-         return _.defaults({
-  //-           startTime: new Date(d.startTime),
-  //-           endTime: new Date(d.endTime)
-  //-         }, d);
-  //-       }
-  //-     })
-
-  //- polymer-element(name="meeting-log-list")
-  //-   template
-  //-     table.table.table-stripted
-  //-       thead
-  //-         th Start
-  //-         th End
-  //-         th Duration
-  //-         th Cost
-  //-       tbody
-  //-         template(repeat="{{log in logs}}")
-  //-           tr
-  //-             td 
-  //-               framework-datetime(datetime="{{log.startTime}}")
-  //-             td 
-  //-               framework-datetime(datetime="{{log.endTime}}")
-  //-             td 
-  //-               framework-datetime-duration(begin="{{log.startTime}}", end="{{log.endTime}}")
-  //-             td 
-  //-               .pull-right $ {{ log.cost }}
-  //-   script.
-  //-     Polymer("meeting-log-list", {
-  //-       logs: [],
-  //-       created: function(){
+  meeting-analytics-app#app(meetingId="#{meeting.id}")
 
 
-  //-       }
-  //-     });
 
-  //- polymer-element(name="meeting-log-chart")
-  //-   template
-  //-     select.pull-right(id="by", value="{{by}}")
-  //-       option(value="day") Day
-  //-       option(value="month") Month
-  //-     framework-highchart(id="chart")
-  //-   script.
-  //-     Polymer("meeting-log-chart", {
-  //-       dateFormats: {
-  //-         day: 'MMM Do, YYYY',
-  //-         month: 'MMM, YYYY',
-  //-         year: 'YYYY'
-  //-       },
-  //-       by: "month",
-  //-       created: function(){
-  //-         var self = this;
 
-  //-         self.$.chart.config = {
-  //-           chart: {
-  //-             type: 'column'
-  //-           },
-  //-           title: {
-  //-             text: 'Meeting Cost'
-  //-           },
-  //-           subtitle: {
-  //-             text: 'by type'
-  //-           },
-  //-           xAxis: {
-  //-             categories: []
-  //-           },
-  //-           series: []
-  //-         };
-  //-         self.refreshChartData();
-  //-       },
+  //- Polymer element definitions
 
-  //-       byChanged: function(){
-  //-         var self = this;
-  //-         self.refreshChartData();
-  //-       },
+  polymer-element(name="meeting-log-resource", extends="framework-resource")
+    script.
+      Polymer("meeting-log-resource",{
+        url: '/api/meetingslog',
+        data: [],
+        parse: function(d){
+          return _.defaults({
+            startTime: new Date(d.startTime),
+            stopTime: new Date(d.stopTime)
+          }, d);
+        }
+      })
 
-  //-       dataChanged: function(){
-  //-         var self = this;
-  //-         self.refreshChartData();
-  //-       },
+  polymer-element(name="meeting-log-list")
+    template
+      table.table.table-stripted
+        thead
+          th Start
+          th End
+          th Duration
+          th Cost
+        tbody
+          template(repeat="{{log in logs}}")
+            tr
+              td 
+                framework-datetime(datetime="{{log.startTime}}")
+              td 
+                framework-datetime(datetime="{{log.stopTime}}")
+              td 
+                framework-datetime-duration(begin="{{log.startTime}}", end="{{log.stopTime}}")
+              td 
+                .pull-right $ {{ log.cost }}
+    script.
+      Polymer("meeting-log-list", {
+        logs: [],
+        created: function(){
 
-  //-       refreshChartData: function(){
-  //-         var self = this;
-  //-         var by = self.by;
-  //-         var grouping = function(p){
-  //-             return moment(p.startTime).startOf(by).format(self.dateFormats[by]);
-  //-           };
 
-  //-         var grouped = _.chain(self.data)
-  //-           .map(function(x){ 
-  //-             return _.map(x.participants, function(p){
-  //-               return {
-  //-                 startTime: x.startTime, 
-  //-                 type: p.type, 
-  //-                 cost: p.totalCost
-  //-               };
-  //-             });
-  //-           })
-  //-           .flatten()
-  //-           .groupBy(grouping)
-  //-           .forEach(function(x, k, t) { 
-  //-             t[k] = _.groupBy(_.flatten(x), 'type'); 
-  //-             _.forEach(t[k], function(x, k, t){
-  //-               t[k] = _.reduce(x, function(result, v){
-  //-                 return result + v.cost;
-  //-               }, 0);
-  //-             });
-  //-           })
-  //-           .value();
+        }
+      });
 
-  //-         console.log(grouped);
+  polymer-element(name="meetings-chart")
+    style.
+      #chart_container {
+        position: relative;
+      }
+      #chart {
+        position: relative;
+        left: 40px;
+        display: block;
+      }
+      #y_axis {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 40px;
+      }
+      #x_axis {
+        position: relative;
+        left: 40px;
+        height: 40px;
+      }
+      #legend_container {
+        float: left;
+      }
 
-  //-         var categories = _.keys(grouped);
+    template
+      .row
+        .col-md-10
+          #chart_container
+            #y_axis
+            #chart
+            #x_axis
+        .col-md-2
+            #legend_container
+              #legend
+    script.
+      Polymer("meetings-chart", {
 
-  //-         var participantTypes = _.uniq(_.flatten(this.data, function(x){
-  //-           return x.participants.map(function(p){
-  //-             return p.type;
-  //-           });
-  //-         }));
+        created: function(){
+          var self = this;
 
-  //-         var series = participantTypes.map(function(p){
-  //-           return {
-  //-             name: p,
-  //-             data: _.map(grouped, function(x){
-  //-               return x[p] || 0; 
-  //-             })
-  //-           };
-  //-         });
+          self.palette = new Rickshaw.Color.Palette({ scheme: 'classic9' });
+        },
 
-  //-         var chart = self.$.chart.getChart();      
-  //-         if(chart.xAxis)
-  //-           chart.xAxis[0].setCategories(_.keys(grouped), false);
-  //-         else
-  //-           chart.addAxis({categories: _.keys(grouped)}, true, false);
-  //-         var seriesIndex = 0;
-  //-         // add/update current chart series
-  //-         for(; seriesIndex < series.length; seriesIndex++)
-  //-         {
-  //-           var s = series[seriesIndex];
-  //-           if(seriesIndex < chart.series.length)
-  //-           {
-  //-             chart.series[seriesIndex].update(s, false);
-  //-           } else {
-  //-             chart.addSeries(s, false);
-  //-           }
-  //-         }
-  //-         // remove unessary series
-  //-         while(seriesIndex < chart.series.length)
-  //-         {
-  //-           chart.series[seriesIndex].remove(false);
-  //-         }
+        initializeChart: function(series)
+        {
+          var self = this;
 
-  //-         chart.redraw();
-  //-       }
-  //-     })
+          var graph = self.graph = new Rickshaw.Graph({
+            element: self.$.chart,
+            interpolation: 'step-after',
+            renderer: 'area',
+            height: 300,
+            width: 800,
+            series: series
+          });
 
-  //- polymer-element(name="meeting-analytics-app")
-  //-   template
-  //-     .row
-  //-       .col-md-10.col-md-offset-1
-  //-         meeting-log-chart(id="chart", style="height: 400px;")
+          self.y_ticks = new Rickshaw.Graph.Axis.Y( {
+            graph: self.graph,
+            orientation: 'left',
+            tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+            element: self.$.y_axis,
+          });
 
-  //-     .row
-  //-       .col-md-10.col-md-offset-1
-  //-         meeting-log-list(id="list")
-  //-     meeting-log-resource(id="resource", on-fetch-complete="populateMeetingLogs")
+          var xAxis = self.x_axis = new Rickshaw.Graph.Axis.Time({
+              graph: graph
+          });
 
-  //-   script.
-  //-     Polymer("meeting-analytics-app", {
-  //-       publish: {
-  //-         meetingId: ''
-  //-       },
+          var legend = self.legend = new Rickshaw.Graph.Legend( {
+            graph: graph,
+            element: self.$.legend
+          } );
 
-  //-       created:function(){
-  //-         var self = this;
-  //-       },
+          var shelving = new Rickshaw.Graph.Behavior.Series.Toggle({
+              graph: graph,
+              legend: legend
+          });
+          var highlighter = new Rickshaw.Graph.Behavior.Series.Highlight({
+              graph: graph,
+              legend: legend
+          });
 
-  //-       meetingIdChanged: function(){
-  //-         var self = this;
-  //-         self.initialize();
-  //-       },
+          var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+              graph: graph,
+              formatter: function(series, x, y){ 
+                return "<div>" + series.name + "</div>"
+                  + "<div>$ " + y + "</div>"; 
+              }
+          } );
 
-  //-       initialize: function(){
-  //-         var self = this;
-  //-         self.$.resource.query({meeting_id: self.meetingId});
+          self.graph.render();
+        },
 
-  //-         var randomInt = function(min, max)
-  //-         {
-  //-           return Math.floor(Math.random() * (max - min) + min);
-  //-         }
+        dataChanged: function(){
+          var self = this;
+          self.refreshChartData();
+        },
 
-  //-         // mock log data
-  //-         for(var i = 0 ; i < 10; i++)
-  //-         {
-  //-           var start = moment().add("d", i);
-  //-           var end = moment().add("d", i).add({hours: randomInt(0,3), minutes:randomInt(5, 55)});
-  //-           var sample = {
-  //-             startTime: start.toDate(),
-  //-             endTime: end.toDate(),
-  //-             totalTime: moment.duration(end.diff(start)).asSeconds(),
-  //-             cost: 0,
-  //-             tags: [
-  //-                 'planning'
-  //-             ],
-  //-             participants: [
-  //-               {
-  //-                 type: 'Developer',
-  //-                 rate: randomInt(100, 150),
-  //-                 count: randomInt(1,5),
-  //-                 totalCost: 0,
-  //-               },
-  //-               {
-  //-                 type: 'QA',
-  //-                 rate: randomInt(100, 150),
-  //-                 count: randomInt(1,3),
-  //-                 totalCost: 0
-  //-               },
-  //-               {
-  //-                 type: 'Offshore',
-  //-                 rate: randomInt(75, 100),
-  //-                 count: randomInt(1, 8),
-  //-                 totalCost: 0
-  //-               }
-  //-             ]
-  //-           };
-  //-           sample.participants.forEach(function(x){
-  //-             var r = (x.rate * x.count) * moment.duration(sample.totalTime, "s").asHours();
-  //-             x.totalCost = Math.round(r * 100) * 0.01;
-  //-             sample.cost =  sample.cost + x.totalCost;
-  //-           });
-  //-           self.$.list.logs.push(sample);
-  //-         }
-  //-         self.$.chart.data = self.$.list.logs;
-  //-       },
+        refreshChartData: function(){
+          var self = this;
+          var by = self.by;
+          var grouped = _.chain(self.data)
+            .map(function(x){ 
+              return _.map(x.participants, function(p){
+                return {
+                  startTime: x.startTime, 
+                  type: p.type, 
+                  cost: p.totalCost
+                };
+              });
+            })
+            .flatten()
+            .groupBy('type')
+            .value();
 
-  //-       populateMeetingLogs: function(e, sender, detail){
-  //-         var self = this;
-  //-         //self.$.list.logs = sender.data;
-  //-       },
-  //-     })
+          var series = _.map(grouped, function(v, k){
+            return {
+              name: k,
+              color: self.palette.color(),
+              data: _.map(v, function(d){
+                  return {
+                    x: moment(d.startTime).unix(),
+                    y: d.cost
+                  };
+                })
+            };
+          });
+          console.log(series);
+          if(self.graph) {
+            self.graph.series = series;
+            self.graph.update();
+          }
+          else {
+            self.initializeChart(series);
+          }
+        }
+      })
 
-  
-  //meeting-analytics-app(meetingid="#{meeting.id}")
-  #container
-  script.
-    $(function () {
-        $('#container').highcharts({
-            title: {
-                text: 'Monthly Average Temperature',
-                x: -20 //center
-            },
-            subtitle: {
-                text: 'Source: WorldClimate.com',
-                x: -20
-            },
-            xAxis: {
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-            },
-            yAxis: {
-                title: {
-                    text: 'Temperature (°C)'
-                },
-                plotLines: [{
-                    value: 0,
-                    width: 1,
-                    color: '#808080'
-                }]
-            },
-            tooltip: {
-                valueSuffix: '°C'
-            },
-            legend: {
-                layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'middle',
-                borderWidth: 0
-            },
-            series: [{
-                name: 'Tokyo',
-                data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
-            }, {
-                name: 'New York',
-                data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8, 24.1, 20.1, 14.1, 8.6, 2.5]
-            }, {
-                name: 'Berlin',
-                data: [-0.9, 0.6, 3.5, 8.4, 13.5, 17.0, 18.6, 17.9, 14.3, 9.0, 3.9, 1.0]
-            }, {
-                name: 'London',
-                data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
-            }]
-        });
-    });
+  polymer-element(name="meeting-analytics-app")
+    template
+      .row
+        .col-md-10.col-md-offset-1
+          meetings-chart#chart
+
+      .row
+        .col-md-10.col-md-offset-1
+          meeting-log-list#list
+      meeting-log-resource#resource(on-query-complete="populateMeetingLogs")
+
+    script.
+      Polymer("meeting-analytics-app", {
+        publish: {
+          meetingId: ''
+        },
+
+        created:function(){
+          var self = this;
+          self.initialize();
+        },
+
+        meetingIdChanged: function(){
+          var self = this;
+          self.initialize();
+        },
+
+        initialize: function(){
+          var self = this;
+          self.$.resource.query({meetingId: self.meetingId});
+
+          //- var randomInt = function(min, max)
+          //- {
+          //-   return Math.floor(Math.random() * (max - min) + min);
+          //- }
+
+          //- // mock log data
+          //- for(var i = 0 ; i < 10; i++)
+          //- {
+          //-   var start = moment().add("d", i);
+          //-   var end = moment().add("d", i).add({hours: randomInt(0,3), minutes:randomInt(5, 55)});
+          //-   var sample = {
+          //-     startTime: start.toDate(),
+          //-     endTime: end.toDate(),
+          //-     totalTime: moment.duration(end.diff(start)).asSeconds(),
+          //-     cost: 0,
+          //-     tags: [
+          //-         'planning'
+          //-     ],
+          //-     participants: [
+          //-       {
+          //-         type: 'Developer',
+          //-         rate: randomInt(100, 150),
+          //-         count: randomInt(1,5),
+          //-         totalCost: 0,
+          //-       },
+          //-       {
+          //-         type: 'QA',
+          //-         rate: randomInt(100, 150),
+          //-         count: randomInt(1,3),
+          //-         totalCost: 0
+          //-       },
+          //-       {
+          //-         type: 'Offshore',
+          //-         rate: randomInt(75, 100),
+          //-         count: randomInt(1, 8),
+          //-         totalCost: 0
+          //-       }
+          //-     ]
+          //-   };
+          //-   sample.participants.forEach(function(x){
+          //-     var r = (x.rate * x.count) * moment.duration(sample.totalTime, "s").asHours();
+          //-     x.totalCost = Math.round(r * 100) * 0.01;
+          //-     sample.cost =  sample.cost + x.totalCost;
+          //-   });
+          //-   self.$.list.logs.push(sample);
+          //- }
+          //- self.$.chart.data = self.$.list.logs;
+        },
+
+        populateMeetingLogs: function(e, sender, detail){
+          var self = this;
+          self.$.list.logs = sender.data;
+          self.$.chart.data = sender.data;
+        },
+      })
+
     
 
 
