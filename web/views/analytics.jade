@@ -43,15 +43,24 @@ block content
     template
       table.table.table-stripted
         thead
+          th 
+            input(type="checkbox"
+              checked="{{ selectAll }}"
+              on-change="selectAllCheckChanged")
           th Date
           th Start
           th End
           th Duration
-          th
+          th 
             span.pull-right Cost
         tbody
           template(repeat="{{log in logs}}")
             tr
+              td
+                input(type="checkbox"
+                  value="{{log.id}}"
+                  checked="{{ log.selected }}"
+                  on-change="checkLogChanged")
               td
                 framework-date(datetime="{{log.startTime}}")
               td 
@@ -68,6 +77,23 @@ block content
         created: function(){
 
 
+        },
+        selectAllCheckChanged: function(){
+          var self = this;
+
+          self.logs.forEach(function(l){
+            l.selected = self.selectAll;
+          });
+
+          self.fire("filter-changed");
+        },
+        checkLogChanged: function(){
+          var self = this;
+          self.selectAll = _.all(self.logs, function(l){
+            return l.selected;
+          });
+
+          self.fire("filter-changed");
         }
       });
 
@@ -237,7 +263,6 @@ block content
             })
             .value();
 
-          console.log("get chart series", series);
           return series;
         }
       })
