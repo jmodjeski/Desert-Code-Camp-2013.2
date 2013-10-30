@@ -59,6 +59,11 @@
 					formatted = formatted + self.duration.minutes() + " Minute"
 						+ (self.duration.minutes() > 1 ? "s " : " ");
 				}
+				if(self.duration.seconds() > 0)
+				{
+					formatted = formatted + self.duration.seconds() + " Second"
+						+ (self.duration.seconds() > 1 ? "s " : " ");	
+				}
 				self.formatted = formatted;
 				self.seconds = self.duration.asSeconds();
 			}
