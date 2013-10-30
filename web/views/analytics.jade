@@ -1,17 +1,15 @@
 extends layout
 
 block head
-  script(
-    src="http://d3js.org/d3.v3.min.js"
-    charset="utf-8")
+  script(type="text/javascript", src="/bower_components/rickshaw/vendor/d3.v3.js")
   script(type="text/javascript", src="/bower_components/rickshaw/rickshaw.js")
   script(type="text/javascript", src="/bower_components/momentjs/moment.js")
 
   link(rel="stylesheet", href="/bower_components/rickshaw/rickshaw.css")
   link(rel="import", href="/elements/framework-datetime.html")
   link(rel="import", href="/elements/framework-currency.html")
-  link(rel="import"
-    href="/elements/app-meetinglogs-resource.html")
+  link(rel="import", href="/elements/app-meetinglogs-resource.html")
+  link(rel="import", href="/polymer-elements/polymer-cookie/polymer-cookie.html")
 
 block content
   h1 
@@ -165,6 +163,7 @@ block content
         .col-md-2
             #legend_container
               #legend
+      polymer-cookie#chartsettings(name="chartsettings")
     script.
       Polymer("meetings-chart", {
         by: 'year',
@@ -180,11 +179,32 @@ block content
           var self = this;
           self.palette = new Rickshaw.Color.Palette({ scheme: 'classic9' });
           self.style.display = 'none';
+          try
+          {
+            _.extend(this, JSON.parse(self.$.chartsettings.value))
+          }
+          catch(err){
+            // ignore cookie parse errors
+            console.warn("failed to parse cookie", err, self.$.chartsettings.value);
+          }
+        },
+
+        saveSettings: function(){
+          var self = this;
+          var settings = {
+            by: self.by,
+            chartType: self.chartType,
+            stackedChart: self.stackedChart
+          };
+          console.log(settings);
+          self.$.chartsettings.value = JSON.stringify(settings);
         },
 
         byChanged: function(){
           var self = this;
           self.refreshChartData();
+
+          self.saveSettings();
         },
 
         stackedChartChanged: function(){
@@ -193,6 +213,8 @@ block content
             self.graph.renderer.unstack = !self.stackedChart;
             self.graph.update();
           }
+
+          self.saveSettings();
         },
 
         chartTypeChanged: function(){
@@ -205,6 +227,8 @@ block content
             self.graph.renderer.unstack = !self.stackedChart;
             self.graph.update();
           }
+
+          self.saveSettings();
         },
 
         initializeChart: function(series)
