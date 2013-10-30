@@ -8,9 +8,10 @@ block head
   script(type="text/javascript", src="/bower_components/momentjs/moment.js")
 
   link(rel="stylesheet", href="/bower_components/rickshaw/rickshaw.css")
-  link(rel="import", href="/elements/framework-resource.html")
   link(rel="import", href="/elements/framework-datetime.html")
   link(rel="import", href="/elements/framework-currency.html")
+  link(rel="import"
+    href="/elements/app-meetinglogs-resource.html")
 
 block content
   h1 
@@ -21,21 +22,26 @@ block content
 
   meeting-analytics-app#app(meetingId="#{meeting.id}")
 
-
-
-
   //- Polymer element definitions
 
-  polymer-element(name="meeting-log-resource", extends="framework-resource")
+  polymer-element(name="meeting-log-resource", extends="app-meetinglogs-resource")
     script.
       Polymer("meeting-log-resource",{
         url: '/api/meetingslog',
         data: [],
         parse: function(d){
+          //- // Should work!
+          //- // add selected property to result
+          //- return _.defaults({
+          //-   selected: true
+          //- }, this.super().parse(d));
+
+          // work around
           return _.defaults({
             startTime: new Date(d.startTime),
-            stopTime: new Date(d.stopTime)
-          }, d);
+            stopTime: new Date(d.stopTime),
+            selected: true
+          }, d)
         }
       })
 
@@ -78,6 +84,13 @@ block content
 
 
         },
+        logsChanged: function(){
+          var self = this;
+          self.selectAll = _.all(self.logs, function(d){
+            return d.selected;
+          });
+        },
+
         selectAllCheckChanged: function(){
           var self = this;
 
@@ -210,22 +223,30 @@ block content
           self.refreshChartData();
         },
 
-        refreshChartData: function(){
+        refreshChartData: function(){ 
           var self = this;
           var by = self.by;
           var series = self.getChartSeries();
 
-          if(self.graph) {
-            series.forEach(function(s){
-              console.log(s);
-              var d = _.find(self.graph.series, function(d){ return d.name == s.name; });
-              console.log(d);
-              d.data = s.data;
-            });
-            self.graph.update();
+          if(series.length) {
+            this.style.display = 'block';
+            if(self.graph) {
+              self.graph.series.forEach(function(s){
+                var d = _.find(series, function(d){ return d.name == s.name; });
+                if(d)
+                  s.data = d.data;
+                else
+                  s.data = [{x:0, y:0}];
+              });
+              self.graph.update();
+            }
+            else {
+              self.initializeChart(series);
+            }
           }
-          else {
-            self.initializeChart(series);
+          else
+          {
+            this.style.display = "none";
           }
         },
 
@@ -275,7 +296,7 @@ block content
 
       .row
         .col-md-10.col-md-offset-1
-          meeting-log-list#list
+          meeting-log-list#list(on-filter-changed="updateChartData")
       meeting-log-resource#resource(on-query-complete="populateMeetingLogs")
 
     script.
@@ -303,9 +324,16 @@ block content
           var self = this;
           if(sender.data.length) {
             self.$.list.logs = sender.data;
-            self.$.chart.data = sender.data;
+            self.updateChartData();
           }
         },
+
+        updateChartData: function(){
+          var self = this;
+          self.$.chart.data = _.filter(self.$.list.logs, function(d){
+            return d.selected;
+          });
+        }
       })
 
     

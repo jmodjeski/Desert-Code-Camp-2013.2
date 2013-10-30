@@ -1,0 +1,16 @@
+<link rel="import" href="/elements/framework-resource.html">
+
+<polymer-element name="app-meetinglogs-resource" extends="framework-resource">
+  <script>
+    Polymer("app-meetinglogs-resource",{
+      url: '/api/meetingslog',
+      data: [],
+      parse: function(d){
+        return _.defaults({
+          startTime: new Date(d.startTime),
+          stopTime: new Date(d.stopTime)
+        }, d);
+      }
+    });
+  </script>
+</polymer-element>
