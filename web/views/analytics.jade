@@ -185,7 +185,8 @@ block content
           }
           catch(err){
             // ignore cookie parse errors
-            console.warn("failed to parse cookie", err, self.$.chartsettings.value);
+            if(console && console.warn)
+              console.warn("failed to parse cookie", err, self.$.chartsettings.value);
           }
         },
 
@@ -196,7 +197,6 @@ block content
             chartType: self.chartType,
             stackedChart: self.stackedChart
           };
-          console.log(settings);
           self.$.chartsettings.value = JSON.stringify(settings);
         },
 
