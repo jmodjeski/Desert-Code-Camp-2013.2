@@ -138,11 +138,24 @@ block content
 
     template
       .row
-        .col-md-10
+        .col-md-1
+          select#chartType(value="{{chartType}}")
+            option(value="area") Area
+            option(value="bar") Bar
+            option(value="line") Line
+        .col-md-2
+          label
+            input#stacked(
+              type="checkbox"
+              checked="{{ stackedChart }}")
+            span  Stacked
+
+        .col-md-offset-4.col-md-1
           select#by(value="{{by}}")
             option(value="year") Year
             option(value="month") Month
             option(value="day") Day
+            option(value="hour") Hour
       .row
         .col-md-10
           #chart_container
@@ -155,6 +168,8 @@ block content
     script.
       Polymer("meetings-chart", {
         by: 'year',
+        chartType: 'bar',
+        stackedChart: true,
         dateFormats: {
           year: 'YYYY',
           month: 'YYYY-MMM',
@@ -171,13 +186,33 @@ block content
           self.refreshChartData();
         },
 
+        stackedChartChanged: function(){
+          var self = this;
+          if(self.graph) {
+            self.graph.renderer.unstack = !self.stackedChart;
+            self.graph.update();
+          }
+        },
+
+        chartTypeChanged: function(){
+          var self = this;
+
+          if(self.graph){
+            self.graph.configure({
+              renderer: self.chartType
+            });
+            self.graph.renderer.unstack = !self.stackedChart;
+            self.graph.update();
+          }
+        },
+
         initializeChart: function(series)
         {
           var self = this;
 
           var graph = self.graph = new Rickshaw.Graph({
             element: self.$.chart,
-            renderer: 'bar',
+            renderer: self.chartType,
             height: 300,
             width: 800,
             series: series
@@ -215,6 +250,7 @@ block content
               }
           } );
 
+          self.graph.renderer.unstack = !self.stackedChart;
           self.graph.render();
         },
 
