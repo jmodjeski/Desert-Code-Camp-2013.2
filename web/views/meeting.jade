@@ -52,7 +52,7 @@ block content
 				}
 			})
 	
-	polymer-element(name="meeting-detail-app", extends="framework-resource", on-fetch-complete="populateMeeting")
+	polymer-element(name="meeting-detail-app", on-fetch-complete="populateMeeting")
 		template
 			.row
 				.col-md-4.col-md-offset-1
@@ -73,14 +73,13 @@ block content
 					id="participants"
 					meetingid="#{meeting.id}"
 				)
+			framework-resource#resource
 
 		script.
 			Polymer("meeting-detail-app", {
 				publish: {
 					meetingId: ''
 				},
-
-				url: '/api/meetings',
 
 				meetingUrl: '/api/meetings',
 
@@ -111,7 +110,8 @@ block content
 					if (self.$.participants.url.indexOf('//') > 0) // This is a dirty hack
 						self.$.participants.url = self.$.participants.url.replace('//', '/' + self.$.participants.meetingId + '/');
 					self.meeting = {};
-					self.fetch(self.meetingId);
+					self.$.resource.url = self.meetingUrl;
+					self.$.resource.fetch(self.meetingId);
 				},
 
 				populateMeeting: function (e, sender, detail) {
@@ -136,7 +136,7 @@ block content
 					if (!stopClock.isRunning) {
 						if (moment(this.meeting.startTime).isSame(this.defaultTime)) {
 							this.meeting.startTime = new Date();
-							this.update(this.meeting.id, this.meeting);
+							this.$.resource.update(this.meeting.id, this.meeting);
 						}
 						this.runClock();
 					}
@@ -148,12 +148,12 @@ block content
 					if (stopClock.isRunning) {
 						stopClock.stop();
 						var log = this.createMeetingLog(startClock.time, stopClock.getElapsedTime(startClock.time));
-						this.url = this.meetingLogUrl;
-						this.create(log);
-						this.url = this.meetingUrl;
+						this.$.resource.url = this.meetingLogUrl;
+						this.$.resource.create(log);
+						this.$.resource.url = this.meetingUrl;
 						startClock.setClock(new Date());
 						this.meeting.startTime = this.defaultTime;
-						this.update(this.meeting.id, this.meeting);
+						this.$.resource.update(this.meeting.id, this.meeting);
 						this.toggleMeetingButtons();
 					}
 				},
