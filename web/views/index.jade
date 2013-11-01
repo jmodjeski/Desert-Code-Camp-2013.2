@@ -6,6 +6,49 @@ block head
 
 block content
 
+	.row
+		meetings-app.col-md-12
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	polymer-element(name="meetings-resource", extends="framework-resource")
 		script.
 			Polymer("meetings-resource", {
@@ -15,12 +58,12 @@ block content
 
 	polymer-element(name="meetings-add")
 		template
-			form.form-inline(role="form", id="addForm", on-submit="formSubmit")
+			form.form-inline#addForm(role="form", on-submit="formSubmit")
 				.form-group.col-md-10
 					.input-group
 						span.input-group-addon
 							.glyphicon.glyphicon-time
-						input.form-control(type="text",value="{{title}}")
+						input.form-control(type="text", value="{{title}}")
 				button.btn.btn-default.col-md-2 Add Meeting
 		script.
 			Polymer("meetings-add", {
@@ -36,10 +79,10 @@ block content
 
 	polymer-element(name="framework-confirm-removal")
 		template
-			button.btn.btn-danger.pull-right(id="remove", type="button", on-click="check") Remove
-			.btn-group.pull-right(id="check", on-mouseleave="cancel")
-				button.btn.btn-danger(id="confirm", type="button", on-click="confirm") Confirm Removal
-				button.btn.btn-default(id="cancel", type="button", on-click="cancel") Cancel
+			button.btn.btn-danger.pull-right#remove(type="button", on-click="check") Remove
+			.btn-group.pull-right#check(on-mouseleave="cancel")
+				button.btn.btn-danger#confirm(type="button", on-click="confirm") Confirm Removal
+				button.btn.btn-default#cancel(type="button", on-click="cancel") Cancel
 
 		script.
 			Polymer("framework-confirm-removal", {
@@ -60,10 +103,8 @@ block content
 				confirm: function(e){
 					var self = this;
 					e.stopPropagation();
-					//- self.async(function(){
 					self.cancel(e);
 					self.fire("remove", self.data);
-					//- })
 				},
 				cancel: function(e){
 					var self = this;
@@ -76,6 +117,7 @@ block content
 					}
 				}
 			});
+			
 
 	polymer-element(name="meetings-list")
 		style.
@@ -120,18 +162,16 @@ block content
 					});
 				},
 				handleRowSelect: function(e, sender, detail){
-					console.log("event", e);
-					console.log("sender", sender);
-					console.log("detail", detail);
 					detail.querySelector(".default-action").click();
 				}
 			});
 
+
 	polymer-element(name="meetings-app")
 		template
-			meetings-add(id="add", on-add-meeting="addMeeting")
-			meetings-list(id="list", on-get-meetings="loadMeetings", on-remove-meeting="removeMeeting")
-			meetings-resource(id="meetings", on-query-complete="populateMeetings", on-add-complete="meetingAdded")
+			meetings-add#add(on-add-meeting="addMeeting")
+			meetings-list#list(on-get-meetings="loadMeetings", on-remove-meeting="removeMeeting")
+			meetings-resource#meetings(on-query-complete="populateMeetings", on-add-complete="meetingAdded")
 		script.
 			Polymer("meetings-app", {
 				loadMeetings: function(e, sender, detail){
@@ -155,8 +195,4 @@ block content
 					self.$.meetings.remove(sender._id);
 				}
 			});
-
-
-	.row
-		meetings-app.col-md-12
 
