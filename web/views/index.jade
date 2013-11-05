@@ -3,6 +3,7 @@ extends layout
 block head
 
 	link(rel="import", href="/elements/framework-resource.html")
+	link(rel="import", href="/elements/meetings-resource.html")
 
 block content
 
@@ -49,12 +50,34 @@ block content
 
 
 
-	polymer-element(name="meetings-resource", extends="framework-resource")
-		script.
-			Polymer("meetings-resource", {
-				url: '/api/meetings',
-				data: []
-			});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	polymer-element(name="meetings-add")
 		template
@@ -76,6 +99,13 @@ block content
 					});
 				}
 			});
+
+
+
+
+
+
+
 
 	polymer-element(name="framework-confirm-removal")
 		template
@@ -118,6 +148,15 @@ block content
 				}
 			});
 			
+
+
+
+
+
+
+
+
+
 
 	polymer-element(name="meetings-list")
 		style.
@@ -165,6 +204,13 @@ block content
 					detail.querySelector(".default-action").click();
 				}
 			});
+
+
+
+
+
+
+			
 
 
 	polymer-element(name="meetings-app")

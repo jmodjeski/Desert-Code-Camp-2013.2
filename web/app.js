@@ -8,7 +8,8 @@ var express = require('express'),
     http = require('http'),
     path = require('path'),
     _ = require('underscore'),
-    api = require('./routes/api');
+    api = require('./routes/api'),
+    fs = require('fs');
 
 var app = express();
 
@@ -30,6 +31,17 @@ app.configure(function(){
 	});
 
 	app.use(app.router);
+
+  // setup hijack route to enable jade template elements
+  // must occur before 'static' middleware registration
+  app.use('/elements', function(req, res, next){
+    var renderPath = 'elements' + req.url.replace('.html', '.jade')
+    var path = __dirname + '/views/' + renderPath;
+    fs.exists(path, function(exists){
+      if(exists) res.render(renderPath);
+      else next();
+    });
+  })
 	app.use(express.static(path.join(__dirname, 'public')));
 });
 
