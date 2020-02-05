@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "grunt": "latest",
-    "express": "3.2.5",
+    "express": "4.17.1",
     "jade": "*",
     "mongoose": "latest",
     "underscore": "~1.5.1",
